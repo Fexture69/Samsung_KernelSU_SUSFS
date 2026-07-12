@@ -28,6 +28,9 @@ on:
       droidspace:
         required: true
         type: string
+      chroot:
+        required: true
+        type: string
       ntsync:
         required: true
         type: string
@@ -261,6 +264,7 @@ jobs:
       nomount: ${{ inputs.nomount }}
       ksun: ${{ inputs.ksun }}
       droidspace: ${{ inputs.droidspace }}
+      chroot: ${{ inputs.chroot }}
       ntsync: ${{ inputs.ntsync }}
       bbrv1: ${{ inputs.bbrv1 }}
       bbrv3: ${{ inputs.bbrv3 }}
