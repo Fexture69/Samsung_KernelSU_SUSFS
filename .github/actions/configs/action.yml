@@ -46,22 +46,33 @@ runs:
      if [ -n "$target_config" ]; then
       echo "Nuking Samsung Knox/Root protection in: $target_config"
          
-     cat >> "$target_config" << 'EOF'
-     # nuke root protection
-     CONFIG_UH=n
-     CONFIG_UH_RKP=n
-     CONFIG_UH_LKMAUTH=n
-     CONFIG_UH_LKM_BLOCK=n
-     CONFIG_RKP_CFP_JOPP=n
-     CONFIG_RKP_CFP=n
-     CONFIG_SECURITY_DEFEX=n
-     CONFIG_PROCA=n
-     CONFIG_FIVE=n
-     CONFIG_RKP=n
-     CONFIG_KDP_NS=n
-     CONFIG_KDP=n
-     EOF
-     fi
+     configs=(
+     "CONFIG_UH=n"
+     "CONFIG_UH_RKP=n"
+     "CONFIG_UH_LKMAUTH=n"
+     "CONFIG_UH_LKM_BLOCK=n"
+     "CONFIG_RKP_CFP_JOPP=n"
+     "CONFIG_RKP_CFP=n"
+     "CONFIG_SECURITY_DEFEX=n"
+     "CONFIG_PROCA=n"
+     "CONFIG_FIVE=n"
+     "CONFIG_RKP=n"
+     "CONFIG_KDP_NS=n"
+     "CONFIG_KDP=n"
+     )
+
+     for config in "${configs[@]}"; do
+         key="${config%%=*}"
+
+         if grep -qE "^(${key}=|# ${key} is not set$)" "$target_config"; then
+             sed -i -E \
+                 -e "s/^${key}=.*/${config}/" \
+                 -e "s/^# ${key} is not set\$/${config}/" \
+                 "$target_config"
+         else
+             echo "$config" >> "$target_config"
+         fi
+     done
 
   - name: remove check_defconfig
     shell: bash
