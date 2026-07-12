@@ -32,12 +32,12 @@ runs:
      for config in "${configs[@]}"; do
          key="${config%%=*}"
 
-         if grep -qE "^(${key}=|# ${key} is not set$)" "$target_config"; then
+         if grep -qE "^(${key}=|# ${key} is not set$)" "$GKI_DEFCONFIG"; then
              sed -i -E \
                  -e "s/^${key}=.*/${config}/" \
                  -e "s/^# ${key} is not set\$/${config}/" \
-                 "$target_config"
+                 "$GKI_DEFCONFIG"
          else
-             echo "$config" >> "$target_config"
+             echo "$config" >> "$GKI_DEFCONFIG"
          fi
      done
