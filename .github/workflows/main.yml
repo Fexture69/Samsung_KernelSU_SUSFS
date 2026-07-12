@@ -173,13 +173,13 @@ jobs:
 
       - name: get commit hashes
         run: |
-         echo "SUSFS_510=(git ls-remote https://gitlab.com/simonpunk/susfs4ksu.git refs/heads/gki-android12-5.10 | cut -f1)" >> $GITHUB_ENV
-         echo "SUSFS_515=(git ls-remote https://gitlab.com/simonpunk/susfs4ksu.git refs/heads/gki-android13-5.15 | cut -f1)" >> $GITHUB_ENV
-         echo "SUSFS_61=(git ls-remote https://gitlab.com/simonpunk/susfs4ksu.git refs/heads/gki-android14-6.1 | cut -f1)" >> $GITHUB_ENV
-         echo "SUSFS_66=(git ls-remote https://gitlab.com/simonpunk/susfs4ksu.git refs/heads/gki-android15-6.6 | cut -f1)" >> $GITHUB_ENV
-         echo "KSUN_HASH=(git ls-remote https://github.com/pershoot/KernelSU-Next.git refs/heads/dev | cut -f1)" >> $GITHUB_ENV
-         echo "BBG_HASH=(git ls-remote https://github.com/vc-teahouse/Baseband-guard.git refs/heads/main | cut -f1)" >> $GITHUB_ENV
-         echo "NM_HASH=(git ls-remote https://github.com/maxsteeel/nomount.git refs/heads/master | cut -f1)" >> $GITHUB_ENV
+         echo "SUSFS_510=$(git ls-remote https://gitlab.com/simonpunk/susfs4ksu.git refs/heads/gki-android12-5.10 | cut -f1)" >> $GITHUB_ENV
+         echo "SUSFS_515=$(git ls-remote https://gitlab.com/simonpunk/susfs4ksu.git refs/heads/gki-android13-5.15 | cut -f1)" >> $GITHUB_ENV
+         echo "SUSFS_61=$(git ls-remote https://gitlab.com/simonpunk/susfs4ksu.git refs/heads/gki-android14-6.1 | cut -f1)" >> $GITHUB_ENV
+         echo "SUSFS_66=$(git ls-remote https://gitlab.com/simonpunk/susfs4ksu.git refs/heads/gki-android15-6.6 | cut -f1)" >> $GITHUB_ENV
+         echo "KSUN_HASH=$(git ls-remote https://github.com/pershoot/KernelSU-Next.git refs/heads/dev | cut -f1)" >> $GITHUB_ENV
+         echo "BBG_HASH=$(git ls-remote https://github.com/vc-teahouse/Baseband-guard.git refs/heads/main | cut -f1)" >> $GITHUB_ENV
+         echo "NM_HASH=$(git ls-remote https://github.com/maxsteeel/nomount.git refs/heads/master | cut -f1)" >> $GITHUB_ENV
 
       - name: Set release body
         run: |
