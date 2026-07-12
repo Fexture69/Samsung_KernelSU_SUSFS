@@ -73,6 +73,7 @@ runs:
              echo "$config" >> "$target_config"
          fi
      done
+     fi
 
   - name: remove check_defconfig
     shell: bash
