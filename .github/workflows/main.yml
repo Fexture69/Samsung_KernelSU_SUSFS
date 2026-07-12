@@ -59,6 +59,12 @@ on:
         type: boolean
         default: true
 
+      chroot:
+        description: "Ubuntu-chroot"
+        required: false
+        type: boolean
+        default: true
+
       ntsync:
         description: "NTsync"
         required: false
@@ -114,6 +120,7 @@ jobs:
       nomount: ${{ inputs.nomount }}
       ksun: ${{ inputs.ksun }}
       droidspace: ${{ inputs.droidspace }}
+      chroot: ${{ inputs.chroot }}
       ntsync: ${{ inputs.ntsync }}
       bbrv1: ${{ inputs.bbrv1 }}
       bbrv3: ${{ inputs.bbrv3 }}
@@ -236,6 +243,12 @@ jobs:
           EOF
           fi
 
+          if [ "${{ inputs.chroot }}" = "true" ]; then
+          cat <<'EOF' >> release_body.md
+          -> ubuntu-chroot support - https://github.com/ravindu644/Ubuntu-Chroot
+          EOF
+          fi
+
           if [ "${{ inputs.ntsync }}" = "true" ]; then
           cat <<'EOF' >> release_body.md
           -> NTSync - Provide high-performance, low-latency synchronization primitives compatible with the Windows NT kernel API
@@ -281,32 +294,32 @@ jobs:
           EOF
           if ${{ inputs.ksun }} == 'true' ]]; then
           cat <<'EOF' >> release_body.md
-          KSUN: ${{ env.KSUN_HASH }}
           
+          KSUN: ${{ env.KSUN_HASH }}
           EOF
           fi
           if ${{ inputs.susfs }} == 'true' ]]; then
           cat <<'EOF' >> release_body.md
+          
           SUSFS: 
           android12-5.10: ${{ env.SUSFS_510 }}
           android13-5.15: ${{ env.SUSFS_515 }}
           android14-6.1: ${{ env.SUSFS_61 }}
           android15-6.6: ${{ env.SUSFS_66 }}
-          
           EOF
           fi
           
           if ${{ inputs.bbg }} == 'true' ]]; then
           cat <<'EOF' >> release_body.md
+          
           BBG: ${{ env.BBG_HASH }}
-
           EOF
           fi
           
           if ${{ inputs.nomount }} == 'true' ]]; then
           cat <<'EOF' >> release_body.md
+          
           NoMount: ${{ env.NM_HASH }}
-
           EOF
           fi
 
