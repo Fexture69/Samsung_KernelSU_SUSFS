@@ -39,6 +39,9 @@ on:
       droidspace:
         required: true
         type: string
+      chroot:
+        required: true
+        type: string
       ntsync:
         required: true
         type: string
@@ -255,6 +258,10 @@ jobs:
         uses: ./.github/actions/droidspaces
         with:
           kernel_version: ${{ inputs.kernel_version }}
+
+      - name: Add ubuntu-chroot support
+        if: inputs.chroot == 'true'
+        uses: ./.github/actions/chroot
 
       - name: Add ntsync
         if: inputs.ntsync == 'true'
