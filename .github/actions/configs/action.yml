@@ -46,7 +46,7 @@ runs:
      if [ -n "$target_config" ]; then
       echo "Nuking Samsung Knox/Root protection in: $target_config"
          
-     cat >> "$target_config" << EOF
+     cat >> "$target_config" << 'EOF'
      CONFIG_UH=n
      CONFIG_UH_RKP=n
      CONFIG_UH_LKMAUTH=n
