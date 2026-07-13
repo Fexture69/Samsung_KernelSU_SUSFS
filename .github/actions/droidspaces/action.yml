@@ -20,7 +20,7 @@ runs:
      fi
 
      cd "$GITHUB_WORKSPACE"
-     cat << "$GKI_DEFCONFIG" >> EOF
+     cat >> "$GKI_DEFCONFIG" << EOF
      CONFIG_SYSVIPC=y
      CONFIG_POSIX_MQUEUE=y
      CONFIG_IPC_NS=y
