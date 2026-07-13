@@ -8,7 +8,7 @@ runs:
   - name: add configs for ubuntu-chroot
     shell: bash
     run: |
-     cat >> "$GKI_DEFCONFIG" << EOF
+     cat >> "$GKI_DEFCONFIG" << 'EOF'
      CONFIG_NAMESPACES=y
      CONFIG_PID_NS=y
      CONFIG_UTS_NS=y
