@@ -18,14 +18,6 @@ runs:
      CONFIG_TMPFS_POSIX_ACL=y
      EOF
 
-  - name: increase log buffer size for showing bbg on ksu manager homepage
-    shell: bash
-    run: |
-     cat >> "$GKI_DEFCONFIG" << 'EOF'
-     # increase log buffer size to show bbg version in wksu homepage
-     CONFIG_LOG_BUF_SHIFT=20
-     EOF
-
   - name: nuke securities for root access
     shell: bash
     run: |
