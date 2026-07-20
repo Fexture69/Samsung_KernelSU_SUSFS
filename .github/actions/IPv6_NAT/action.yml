@@ -7,30 +7,43 @@ runs:
   - name: add ip-set and ipv6_NAT support in defconfig and apply patch
     shell: bash
     run: |
-     cat >> "$GKI_DEFCONFIG" << EOF
-     CONFIG_IP_SET=y
-     CONFIG_IP_SET_MAX=65534
-     CONFIG_IP_SET_BITMAP_IP=y
-     CONFIG_IP_SET_BITMAP_IPMAC=y
-     CONFIG_IP_SET_BITMAP_PORT=y
-     CONFIG_IP_SET_HASH_IP=y
-     CONFIG_IP_SET_HASH_IPMARK=y
-     CONFIG_IP_SET_HASH_IPPORT=y
-     CONFIG_IP_SET_HASH_IPPORTIP=y
-     CONFIG_IP_SET_HASH_IPPORTNET=y
-     CONFIG_IP_SET_HASH_IPMAC=y
-     CONFIG_IP_SET_HASH_MAC=y
-     CONFIG_IP_SET_HASH_NETPORTNET=y
-     CONFIG_IP_SET_HASH_NET=y
-     CONFIG_IP_SET_HASH_NETNET=y
-     CONFIG_IP_SET_HASH_NETPORT=y
-     CONFIG_IP_SET_HASH_NETIFACE=y
-     CONFIG_IP_SET_LIST_SET=y
-     CONFIG_NETFILTER_XT_MATCH_ADDRTYPE=y
-     CONFIG_NETFILTER_XT_SET=y
-     CONFIG_IP6_NF_NAT=y
-     CONFIG_IP6_NF_TARGET_MASQUERADE=y
-     EOF
+     config=(
+     "CONFIG_IP_SET=y"
+     "CONFIG_IP_SET_MAX=65534"
+     "CONFIG_IP_SET_BITMAP_IP=y"
+     "CONFIG_IP_SET_BITMAP_IPMAC=y"
+     "CONFIG_IP_SET_BITMAP_PORT=y"
+     "CONFIG_IP_SET_HASH_IP=y"
+     "CONFIG_IP_SET_HASH_IPMARK=y"
+     "CONFIG_IP_SET_HASH_IPPORT=y"
+     "CONFIG_IP_SET_HASH_IPPORTIP=y"
+     "CONFIG_IP_SET_HASH_IPPORTNET=y"
+     "CONFIG_IP_SET_HASH_IPMAC=y"
+     "CONFIG_IP_SET_HASH_MAC=y"
+     "CONFIG_IP_SET_HASH_NETPORTNET=y"
+     "CONFIG_IP_SET_HASH_NET=y"
+     "CONFIG_IP_SET_HASH_NETNET=y"
+     "CONFIG_IP_SET_HASH_NETPORT=y"
+     "CONFIG_IP_SET_HASH_NETIFACE=y"
+     "CONFIG_IP_SET_LIST_SET=y"
+     "CONFIG_NETFILTER_XT_MATCH_ADDRTYPE=y"
+     "CONFIG_NETFILTER_XT_SET=y"
+     "CONFIG_IP6_NF_NAT=y"
+     "CONFIG_IP6_NF_TARGET_MASQUERADE=y"
+     )
+
+     for config in "${configs[@]}"; do
+         key="${config%%=*}"
+
+         if grep -qE "^(${key}=|# ${key} is not set$)" "$GKI_DEFCONFIG"; then
+             sed -i -E \
+                 -e "s/^${key}=.*/${config}/" \
+                 -e "s/^# ${key} is not set\$/${config}/" \
+                 "$GKI_DEFCONFIG"
+         else
+             echo "$config" >> "$GKI_DEFCONFIG"
+         fi
+     done
 
      cd "$COMMON"
      patch -p1 -F 3 < "$KERNEL_PATCHES/common/IPv6_NAT_FIX.patch"
