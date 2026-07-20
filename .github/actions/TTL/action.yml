@@ -7,8 +7,21 @@ runs:
   - name: apply ttl support
     shell: bash
     run: |
-     cat >> "$GKI_DEFCONFIG" <<EOF
+     config=(
      CONFIG_IP_NF_TARGET_TTL=y
      CONFIG_IP6_NF_TARGET_HL=y
      CONFIG_IP6_NF_MATCH_HL=y
-     EOF
+     )
+
+     for config in "${configs[@]}"; do
+         key="${config%%=*}"
+
+         if grep -qE "^(${key}=|# ${key} is not set$)" "$GKI_DEFCONFIG"; then
+             sed -i -E \
+                 -e "s/^${key}=.*/${config}/" \
+                 -e "s/^# ${key} is not set\$/${config}/" \
+                 "$GKI_DEFCONFIG"
+         else
+             echo "$config" >> "$GKI_DEFCONFIG"
+         fi
+     done
