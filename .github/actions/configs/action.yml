@@ -74,7 +74,6 @@ runs:
      "CONFIG_PROCA=n"
      "CONFIG_PROCA_S_OS=n"
      "CONFIG_PROCA_GKI_10=n"
-     "CONFIG_PROCA_CERTIFICATES_XATTR=n"
      "CONFIG_PROCA_CERT_ENG=n"
      "CONFIG_PROCA_CERT_USER=n"
      "CONFIG_FIVE=n"
@@ -82,7 +81,6 @@ runs:
      "CONFIG_FIVE_TEE_DRIVER=n"
      "CONFIG_FIVE_PA_FEATURE=n"
      "CONFIG_FIVE_CERT_USER=n"
-     "CONFIG_FIVE_DEFAULT_HASH=n"
      "CONFIG_RKP=n"
      "CONFIG_KDP_NS=n"
      "CONFIG_KDP=n"
@@ -90,7 +88,6 @@ runs:
      "CONFIG_DDAR=n"
      "CONFIG_GAF=n"
      "CONFIG_GAF_V6=n"
-     "CONFIG_INTEGRITY=n"
      )
 
      for config in "${configs[@]}"; do
