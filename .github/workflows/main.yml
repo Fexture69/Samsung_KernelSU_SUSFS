@@ -236,12 +236,6 @@ jobs:
           EOF
           fi
 
-          if [ "${{ inputs.chroot }}" = "true" ]; then
-          cat <<'EOF' >> release_body.md
-          -> ubuntu-chroot support - https://github.com/ravindu644/Ubuntu-Chroot
-          EOF
-          fi
-
           if [ "${{ inputs.ntsync }}" = "true" ]; then
           cat <<'EOF' >> release_body.md
           -> NTSync - Provide high-performance, low-latency synchronization primitives compatible with the Windows NT kernel API
@@ -289,30 +283,31 @@ jobs:
           cat <<'EOF' >> release_body.md
           
           KSUN: ${{ env.KSUN_HASH }}
+          
           EOF
           fi
           if ${{ inputs.susfs }} == 'true' ]]; then
           cat <<'EOF' >> release_body.md
-          
           SUSFS: 
           android12-5.10: ${{ env.SUSFS_510 }}
           android13-5.15: ${{ env.SUSFS_515 }}
           android14-6.1: ${{ env.SUSFS_61 }}
           android15-6.6: ${{ env.SUSFS_66 }}
+          
           EOF
           fi
           
           if ${{ inputs.bbg }} == 'true' ]]; then
           cat <<'EOF' >> release_body.md
-          
           BBG: ${{ env.BBG_HASH }}
+          
           EOF
           fi
           
           if ${{ inputs.nomount }} == 'true' ]]; then
           cat <<'EOF' >> release_body.md
-          
           NoMount: ${{ env.NM_HASH }}
+          
           EOF
           fi
 
