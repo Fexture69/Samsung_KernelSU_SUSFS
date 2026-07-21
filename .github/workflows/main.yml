@@ -59,12 +59,6 @@ on:
         type: boolean
         default: true
 
-      chroot:
-        description: "Ubuntu-chroot"
-        required: false
-        type: boolean
-        default: false
-
       ntsync:
         description: "NTsync"
         required: false
@@ -120,7 +114,6 @@ jobs:
       nomount: ${{ inputs.nomount }}
       ksun: ${{ inputs.ksun }}
       droidspace: ${{ inputs.droidspace }}
-      chroot: ${{ inputs.chroot }}
       ntsync: ${{ inputs.ntsync }}
       bbrv1: ${{ inputs.bbrv1 }}
       bbrv3: ${{ inputs.bbrv3 }}
