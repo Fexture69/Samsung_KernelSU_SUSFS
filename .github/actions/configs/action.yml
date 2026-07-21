@@ -90,7 +90,6 @@ runs:
      "CONFIG_DDAR=n"
      "CONFIG_GAF=n"
      "CONFIG_GAF_V6=n"
-     "CONFIG_INTEGRITY=n"
      )
 
      for config in "${configs[@]}"; do
