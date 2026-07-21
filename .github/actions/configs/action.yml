@@ -17,27 +17,6 @@ runs:
      CONFIG_TMPFS_XATTR=y
      CONFIG_TMPFS_POSIX_ACL=y
      EOF
-
-  - name: add KPM support
-    shell: bash
-    run: |
-     kpmconfig=(
-     "CONFIG_KALLSYMS=y"
-     "CONFIG_KALLSYMS_ALL=y"
-     )
-
-     for config in "${kpmconfig[@]}"; do
-         key="${config%%=*}"
-
-         if grep -qE "^(${key}=|# ${key} is not set$)" "$GKI_DEFCONFIG"; then
-             sed -i -E \
-                 -e "s/^${key}=.*/${config}/" \
-                 -e "s/^# ${key} is not set\$/${config}/" \
-                 "$GKI_DEFCONFIG"
-         else
-             echo "$config" >> "$GKI_DEFCONFIG"
-         fi
-     done
      
   - name: nuke securities for root access
     shell: bash
@@ -68,26 +47,11 @@ runs:
      "CONFIG_RKP_CFP_ROPP=n"
      "CONFIG_RKP_CFP=n"
      "CONFIG_SECURITY_DEFEX=n"
-     "CONFIG_SECURITY_DEFEX_USER=n"
-     "CONFIG_SECURITY_DEFEX_IMR=n"
-     "CONFIG_SECURITY_DEFEX_DTM=n"
      "CONFIG_PROCA=n"
-     "CONFIG_PROCA_S_OS=n"
-     "CONFIG_PROCA_GKI_10=n"
-     "CONFIG_PROCA_CERT_ENG=n"
-     "CONFIG_PROCA_CERT_USER=n"
      "CONFIG_FIVE=n"
-     "CONFIG_FIVE_GKI_10=n"
-     "CONFIG_FIVE_TEE_DRIVER=n"
-     "CONFIG_FIVE_PA_FEATURE=n"
-     "CONFIG_FIVE_CERT_USER=n"
      "CONFIG_RKP=n"
      "CONFIG_KDP_NS=n"
      "CONFIG_KDP=n"
-     "CONFIG_KNOX_NCM=n"
-     "CONFIG_DDAR=n"
-     "CONFIG_GAF=n"
-     "CONFIG_GAF_V6=n"
      )
 
      for config in "${configs[@]}"; do
