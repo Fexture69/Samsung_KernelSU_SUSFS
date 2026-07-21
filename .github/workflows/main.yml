@@ -63,7 +63,7 @@ on:
         description: "Ubuntu-chroot"
         required: false
         type: boolean
-        default: true
+        default: false
 
       ntsync:
         description: "NTsync"
