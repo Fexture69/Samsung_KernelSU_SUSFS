@@ -9,12 +9,6 @@ on:
       branch:
         required: true
         type: string
-      android_version:
-        required: true
-        type: string
-      kernel_version:
-        required: true
-        type: string
       build_type:
         required: false
         type: string
@@ -179,7 +173,7 @@ jobs:
       - name: Set CONFIG Environment Variable
         run: |
           # Set CONFIG dynamically based on inputs values
-          CONFIG="${{ inputs.branch }}-${{ inputs.android_version }}-${{ inputs.kernel_version }}"
+          CONFIG="$BRANCH-$ANDROID_VERSION_$KERNEL_VERSION"
 
           # Set CONFIG as an environment variable for future steps
           echo "CONFIG=$CONFIG" >> $GITHUB_ENV
@@ -209,11 +203,11 @@ jobs:
         with:
           susfs: ${{ inputs.susfs }}
         
-      - name: Apply SUSFS Patches
+      - name: Add SUSFS
         if: inputs.susfs == 'true'
         uses: ./.github/actions/susfs-patches
 
-      - name: Apply zeromount Patches
+      - name: Add Zeromount
         if: inputs.susfs == 'true' && inputs.zeromount == 'true'
         uses: ./.github/actions/zeromount
 
@@ -254,7 +248,7 @@ jobs:
         uses: ./.github/actions/optimization
 
       - name: Fix WiFi and Bluetooth on Samsung 6.6 GKI devices
-        if: inputs.kernel_version == '6.6'
+        if: ${{ env.KERNEL_VERSION }} == '6.6'
         uses: ./.github/actions/6.6-fix
 
       - name: temp fix for m55 bootloop maybe
@@ -275,7 +269,6 @@ jobs:
         if: inputs.ksun == 'true'
         uses: ./.github/actions/file-name
         with:
-         branch: ${{ inputs.branch }}
          ksun: ${{ inputs.ksun }}
          susfs: ${{ inputs.susfs }}
          zeromount: ${{ inputs.zeromount }}
@@ -303,9 +296,7 @@ jobs:
       - name: Build
         uses: ./.github/actions/build
         with:
-         branch: ${{ inputs.branch }}
          build_type: ${{ inputs.build_type }}
-         kernel_version: ${{ inputs.kernel_version }}
 
       - name: clean up ccache
         if: inputs.cache == 'true' && inputs.build_type == 'make'
