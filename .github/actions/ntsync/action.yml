@@ -21,6 +21,5 @@ runs:
    - name: enable ntsync config
      shell: bash
      run: |
-      cat >> "$GKI_DEFCONFIG" << 'EOF'
-      CONFIG_NTSYNC=y
-      EOF
+      "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_NTSYNC
+
