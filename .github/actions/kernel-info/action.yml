@@ -1,0 +1,48 @@
+name: get kernel version before cloning
+description: get kernel version before cloning
+
+runs:
+ using: composite
+ steps:
+    - name: Locate, Fetch, and Split Version Metadata
+      shell: bash
+      run: |
+          TARGET_FILE="build.config.constants"
+          REPO_URL="https://github.com/WildKernels/Samsung_Kernels.git"
+          
+          echo "Searching for ${TARGET_FILE} on branch: ${{ matrix.branch }}..."
+          
+          # 1. Use git ls-tree to find the exact file path on the remote branch without cloning
+          FILE_PATH=$(git ls-tree -r --name-only "https://github.com/WildKernels/Samsung_Kernels" "$BRANCH" | grep "/${TARGET_FILE}$\|^${TARGET_FILE}$" | head -n 1)
+          
+          if [ -z "$FILE_PATH" ]; then
+            echo "::error::Could not find ${TARGET_FILE} anywhere on branch $BRANCH"
+            exit 1
+          fi
+          
+          echo "File discovered at path: $FILE_PATH"
+          
+          # 2. Fetch the raw file from its dynamically discovered public URL
+          RAW_URL="https://githubusercontent.com/WildKernels/Samsung_Kernels/$BRANCH/$FILE_PATH"
+          FILE_CONTENT=$(curl -s "$RAW_URL")
+          
+          # 3. Extract the BRANCH= line
+          BRANCH_LINE=$(echo "$FILE_CONTENT" | grep "^BRANCH=" | head -n 1)
+          
+          if [ -z "$BRANCH_LINE" ]; then
+            echo "::error::Could not find BRANCH= line inside $FILE_PATH"
+            exit 1
+          fi
+          
+          # 4. Parse components using awk (splits by '=' and '-')
+          ANDROID_VER=$(echo "$BRANCH_LINE" | awk -F'[=-]' '{print $2}' | tr -d '" .')
+          KERNEL_VER=$(echo "$BRANCH_LINE" | awk -F'[=-]' '{print $3}' | tr -d '" .')
+          
+          echo "Parsed Android Version: $ANDROID_VER"
+          echo "Parsed Kernel Version: $KERNEL_VER"
+          
+          # 5. Export directly to GitHub Environment Variables
+          echo "ANDROID_VERSION=$ANDROID_VER" >> $GITHUB_ENV
+          echo "KERNEL_VERSION=$KERNEL_VER" >> $GITHUB_ENV
+
+
