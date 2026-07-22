@@ -21,20 +21,7 @@ runs:
     shell: bash
     run: |
      ROOT="$GITHUB_WORKSPACE"
-     if [[ ${{ inputs.susfs }} == 'true' ]]; then
-      SUSFS4KSU="$ROOT/susfs4ksu"
-      echo "SUSFS4KSU=$SUSFS4KSU" >> $GITHUB_ENV
-     fi
      ANYKERNEL3="$ROOT/AnyKernel3"
-     if [[ ${{ inputs.zeromount }} == 'true' ]]; then
-      ZEROMOUNT="$ROOT/Super-Builders"
-      echo "ZEROMOUNT=$ZEROMOUNT" >> $GITHUB_ENV
-     fi
-     if [[ ${{ inputs.nomount }} == 'true' ]]; then
-      NOMOUNT="$ROOT/nomount"
-      echo "NOMOUNT=$NOMOUNT" >> $GITHUB_ENV
-     fi
-
      KERNEL_PATCHES="$ROOT/kernel_patches"
      echo "ROOT=$ROOT" >> $GITHUB_ENV
      echo "ANYKERNEL3=$ANYKERNEL3" >> $GITHUB_ENV
