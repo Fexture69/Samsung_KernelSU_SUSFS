@@ -22,6 +22,9 @@ runs:
      run: |
       SUSFS_BRANCH="gki-${{ inputs.android_version }}-${{ inputs.kernel_version }}"
       git clone https://gitlab.com/simonpunk/susfs4ksu.git -b "$SUSFS_BRANCH"
+
+      git config --global user.name "github-actions[bot]"
+      git config --global user.email "41898282+github-actions[bot]@://github.com"
       
       cd susfs4ksu
       git fetch https://gitlab.com/pershoot/susfs4ksu.git gki-android14-6.1-dev
