@@ -1,12 +1,5 @@
 name: add bbrv3 AND bbrv1
 description: enable configs to add bbrv3 and v1 to kernel
-inputs:
- kernel_version:
-  description: 'version of kernel'
-  required: true
- android_version:
-  description: 'android version of kernel'
-  required: true
 
 runs:
  using: composite
@@ -15,7 +8,7 @@ runs:
     shell: bash
     run: |
      cd "$COMMON"
-     patch -p1 < "$KERNEL_PATCHES/common/bbrv3/0001-net-tcp-backport-BBRv3-to-${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch"
+     patch -p1 < "$KERNEL_PATCHES/common/bbrv3/0001-net-tcp-backport-BBRv3-to-$ANDROID_VERSION-$KERNEL_VERSION.patch"
      
   - name: add bbr configs to defconfig
     shell: bash
