@@ -32,7 +32,7 @@ runs:
       sed -i '/drivers\/net\/usb\/smsc75xx\.ko/d;/drivers\/net\/usb\/smsc95xx\.ko/d' kernel_platform/common/modules.bzl
       chmod +x build_kernel_GKI.sh
       ./build_kernel_GKI.sh || true
-     elif [[ $KERNEL_VER == 6.* ]]; then
+     elif [[ $KERNEL_VERSION == 6.* ]]; then
       chmod +x build_kernel_GKI.sh
       ./build_kernel_GKI.sh || true
      elif [[ -d kernel_platform ]]; then
