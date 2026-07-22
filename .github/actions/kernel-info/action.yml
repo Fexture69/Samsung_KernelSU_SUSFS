@@ -12,8 +12,8 @@ runs:
           
           echo "Searching for ${TARGET_FILE} on branch: ${{ matrix.branch }}..."
           
-          # 1. Use git ls-tree to find the exact file path on the remote branch without cloning
-          FILE_PATH=$(git ls-tree -r --name-only "https://github.com/WildKernels/Samsung_Kernels" "$BRANCH" | grep "/${TARGET_FILE}$\|^${TARGET_FILE}$" | head -n 1)
+          # 1. Use git ls-remote to find the exact file path on the remote branch without cloning
+          FILE_PATH=$(git ls-remote -r --name-only "https://github.com/WildKernels/Samsung_Kernels" "$BRANCH" | grep "/${TARGET_FILE}$\|^${TARGET_FILE}$" | head -n 1)
           
           if [ -z "$FILE_PATH" ]; then
             echo "::error::Could not find ${TARGET_FILE} anywhere on branch $BRANCH"
