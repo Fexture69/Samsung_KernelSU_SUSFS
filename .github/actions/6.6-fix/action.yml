@@ -1,9 +1,5 @@
 name: Fix wifi and BT
 description: fix wifi and BT on samsung 6.6 devices
-inputs:
- branch: 
-   description: 'device kernel'
-   required: true
 
 runs:
  using: composite
@@ -12,14 +8,14 @@ runs:
     shell: bash
     run: |
      cd "$COMMON"
-     patch -p1 < "$KERNEL_PATCHES/samsung/${{ inputs.branch }}/kdp/add_min_kdp.patch"
+     patch -p1 < "$KERNEL_PATCHES/samsung/$BRANCH/kdp/add_min_kdp.patch"
          
      SYMBOL_LIST=android/abi_gki_aarch64_galaxy
      echo "kdp_set_cred_non_rcu" >> $SYMBOL_LIST
      echo "kdp_usecount_dec_and_test" >> $SYMBOL_LIST
      echo "kdp_usecount_inc" >> $SYMBOL_LIST
 
-     if [[ "${{ inputs.branch }}" == "SM-S931B-Oneui8" ]]; then
+     if [[ "$BRANCH" == "SM-S931B-Oneui8" ]]; then
        echo "snd_soc_find_dai" >> $SYMBOL_LIST
        sed -i '
        /"kernel_aarch64": {/,/},/ {
