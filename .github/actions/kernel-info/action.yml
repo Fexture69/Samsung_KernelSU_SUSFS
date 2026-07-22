@@ -4,16 +4,17 @@ description: get kernel version before cloning
 runs:
  using: composite
  steps:
-    - name: Locate, Fetch, and Split Version Metadata
-      shell: bash
-      run: |
+      - name: Locate, Fetch, and Split Version Metadata
+        shell: bash
+        run: |
           TARGET_FILE="build.config.constants"
-          REPO_URL="https://github.com/WildKernels/Samsung_Kernels.git"
+          REPO_URL="https://github.com/WildKernels/Samsung_Kernels"
           
-          echo "Searching for ${TARGET_FILE} on branch: ${{ matrix.branch }}..."
+          echo "Searching for ${TARGET_FILE} on branch: $BRANCH..."
           
-          # 1. Use git ls-remote to find the exact file path on the remote branch without cloning
-          FILE_PATH=$(git ls-remote -r --name-only "https://github.com/WildKernels/Samsung_Kernels" "$BRANCH" | grep "/${TARGET_FILE}$\|^${TARGET_FILE}$" | head -n 1)
+          # 1. Download ONLY the file list (tree index) of the remote branch
+          # This runs instantly, takes zero disk space, and requires no tokens
+          FILE_PATH=$(git archive --remote="$REPO_URL" "$BRANCH" | tar -t | grep "${TARGET_FILE}" | head -n 1)
           
           if [ -z "$FILE_PATH" ]; then
             echo "::error::Could not find ${TARGET_FILE} anywhere on branch $BRANCH"
@@ -22,7 +23,7 @@ runs:
           
           echo "File discovered at path: $FILE_PATH"
           
-          # 2. Fetch the raw file from its dynamically discovered public URL
+          # 2. Fetch the raw file content from its dynamically discovered location
           RAW_URL="https://githubusercontent.com/WildKernels/Samsung_Kernels/$BRANCH/$FILE_PATH"
           FILE_CONTENT=$(curl -s "$RAW_URL")
           
@@ -44,5 +45,6 @@ runs:
           # 5. Export directly to GitHub Environment Variables
           echo "ANDROID_VERSION=$ANDROID_VER" >> $GITHUB_ENV
           echo "KERNEL_VERSION=$KERNEL_VER" >> $GITHUB_ENV
+
 
 
