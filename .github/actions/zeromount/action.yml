@@ -55,8 +55,7 @@ runs:
       fi
       #patch -p1 < 70_ksu_safety-wksu-${{ inputs.kernel_version }}.patch || true
 
-      cd "$GITHUB_WORKSPACE"
-      cat >> "$GKI_DEFCONFIG" << 'EOF'
-      # Zeromount Configuration
-      CONFIG_ZEROMOUNT=y
-      EOF
+  - name: apply zeromount patches
+    shell: bash
+    run: |
+      "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_ZEROMOUNT
