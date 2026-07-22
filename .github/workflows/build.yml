@@ -63,7 +63,7 @@ on:
 
 jobs:
   build-samsung-gki:
-    name: "${{ inputs.branch }}-${{ inputs.kernel_version }}-${{ inputs.android_version }}"
+    name: "${{ inputs.branch }}"
     runs-on: ubuntu-latest
     strategy:
       fail-fast: false
@@ -72,6 +72,12 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v5
        
+      - name: Store branch as env variable
+        run: BRANCH=${{ inputs.branch }} && echo "BRANCH=$BRANCH" >> $GITHUB_ENV
+
+      - name: get kernel version before cloning
+        uses: ./.github/actions/kernel-info
+        
       - name: Free Disk Space
         if: true
         uses: endersonmenezes/free-disk-space@v3  # Use @main for latest, @v3 for stable
@@ -97,8 +103,6 @@ jobs:
       - name: Parse branch for cache keys
         if: inputs.cache == 'true' && inputs.build_type == 'make'
         uses: ./.github/actions/parse-branch
-        with:
-         branch: ${{ inputs.branch }}
 
 #      - name: set up bazel cache dir
 #        if: inputs.build_type == 'Bazel' && inputs.cache == 'true'
@@ -182,25 +186,12 @@ jobs:
 
       - name: dependencies
         uses: ./.github/actions/dependencies
-        with:
-          zeromount: ${{ inputs.zeromount }}
-          nomount: ${{ inputs.nomount }}
-          susfs: ${{ inputs.susfs }}
-          android_version: ${{ inputs.android_version }}
-          kernel_version: ${{ inputs.kernel_version }}
           
       - name: Download Kernel
         uses: ./.github/actions/clone-kernel
-        with:
-          branch: ${{ inputs.branch }}
             
       - name: Set Path Environment Variables
         uses: ./.github/actions/env-variables
-        with:
-         branch: ${{ inputs.branch }}
-         susfs: ${{ inputs.susfs }}
-         zeromount: ${{ inputs.zeromount }}
-         nomount: ${{ inputs.nomount }}
           
       - name: Extract all tar.xz files and delete them
         run: |
@@ -221,24 +212,14 @@ jobs:
       - name: Apply SUSFS Patches
         if: inputs.susfs == 'true'
         uses: ./.github/actions/susfs-patches
-        with:
-          android_version: ${{ inputs.android_version }}
-          kernel_version: ${{ inputs.kernel_version }}
-          branch: ${{ inputs.branch }}
-          nomount: ${{ inputs.nomount }}
 
       - name: Apply zeromount Patches
         if: inputs.susfs == 'true' && inputs.zeromount == 'true'
         uses: ./.github/actions/zeromount
-        with:
-          android_version: ${{ inputs.android_version }}
-          kernel_version: ${{ inputs.kernel_version }}
 
       - name: add nomount
         if: inputs.nomount == 'true'
         uses: ./.github/actions/nomount
-        with:
-          kernel_version: ${{ inputs.kernel_version }}
 
       - name: Add BBG
         if: inputs.bbg == 'true'
@@ -247,32 +228,18 @@ jobs:
       - name: Add unicodefix
         if: inputs.unicodefix == 'true'
         uses: ./.github/actions/unicode
-        with:
-          kernel_version: ${{ inputs.kernel_version }}
 
       - name: Add droidspace support
         if: inputs.droidspace == 'true'
         uses: ./.github/actions/droidspaces
-        with:
-          kernel_version: ${{ inputs.kernel_version }}
 
       - name: Add ntsync
         if: inputs.ntsync == 'true'
         uses: ./.github/actions/ntsync
-        with:
-          android_version: ${{ inputs.android_version }}
-          kernel_version: ${{ inputs.kernel_version }}
-
-      - name: Add bbrv1
-        if: inputs.bbrv1 == 'true'
-        uses: ./.github/actions/bbrv1
         
       - name: Add bbrv3
         if: inputs.bbrv3 == 'true'
         uses: ./.github/actions/bbrv3
-        with:
-          android_version: ${{ inputs.android_version }}
-          kernel_version: ${{ inputs.kernel_version }}
 
       - name: Add IP-SET and IPv6_NAT support
         if: inputs.ipv6_nat == 'true'
@@ -285,15 +252,10 @@ jobs:
       - name: add optimization patches
         if: inputs.optimization == 'true'
         uses: ./.github/actions/optimization
-        with:
-         kernel_version: ${{ inputs.kernel_version }}
-         branch: ${{ inputs.branch }}
 
       - name: Fix WiFi and Bluetooth on Samsung 6.6 GKI devices
         if: inputs.kernel_version == '6.6'
         uses: ./.github/actions/6.6-fix
-        with:
-         branch: ${{ inputs.branch }}
 
       - name: temp fix for m55 bootloop maybe
         if: inputs.branch == 'SM-M556B-Oneui8'
@@ -302,8 +264,6 @@ jobs:
       - name: Set Kernel Configuration Variables
         if: inputs.ksun == 'true'
         uses: ./.github/actions/configs
-        with:
-         branch: ${{ inputs.branch }}
          
       - name: Change Kernel Name and clean dirty
         uses: ./.github/actions/kernel-name
