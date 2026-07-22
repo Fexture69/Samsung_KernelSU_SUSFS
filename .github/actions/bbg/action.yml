@@ -14,10 +14,7 @@ runs:
    - name: enable bbg in defconfig
      shell: bash
      run: |
-      cd "$GITHUB_WORKSPACE"
-      cat >> "$GKI_DEFCONFIG" << 'EOF'
-      CONFIG_BBG=y
-      EOF
+      "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_BBG
 
    - name: add bbg into kconfig
      shell: bash
