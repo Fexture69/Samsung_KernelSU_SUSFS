@@ -1,15 +1,6 @@
 name: set file name for ak3zip
 description: set file name for ak3 zip
 inputs:
- branch:
-  description: 'Device kernel'
-  required: true
- android_version:
-  description: 'Android version (android14)'
-  required: true
- kernel_version:
-  description: 'Kernel version (6.1)'
-  required: true
  ksun:
   description: 'ksun'
   required: true
@@ -21,9 +12,6 @@ inputs:
   required: true
  bbg:
   description: 'bbg'
-  required: true
- bbrv1:
-  description: 'bbrv1'
   required: true
  bbrv3:
   description: 'bbrv3'
@@ -50,7 +38,7 @@ runs:
   - name: set file name for ak3zip
     shell: bash
     run: |
-     ARTIFACT_BASE="${{ inputs.branch }}"
+     ARTIFACT_BASE="$BRANCH"
           
      # This gives dynamic file name depending on which features are enabled
      FILE_NAME="${ARTIFACT_BASE}"
@@ -58,7 +46,6 @@ runs:
      [[ "${{ inputs.susfs }}" == "true" ]] && FILE_NAME="${FILE_NAME}-SUSFS"
      [[ "${{ inputs.zeromount }}" == "true" ]] && FILE_NAME="${FILE_NAME}-ZM"
      [[ "${{ inputs.bbg }}" == "true" ]] && FILE_NAME="${FILE_NAME}-BBG"
-     [[ "${{ inputs.bbrv1 }}" == "true" ]] && FILE_NAME="${FILE_NAME}-BBRV1"
      [[ "${{ inputs.bbrv3 }}" == "true" ]] && FILE_NAME="${FILE_NAME}-BBRV3"
      [[ "${{ inputs.droidspaces }}" == "true" ]] && FILE_NAME="${FILE_NAME}-DS"
      [[ "${{ inputs.ntsync }}" == "true" ]] && FILE_NAME="${FILE_NAME}-NTS"
