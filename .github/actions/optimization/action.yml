@@ -1,12 +1,5 @@
 name: add kernel optimizations
 description: apply patches from kernel patches repo for kernel optimization
-inputs:
-  kernel_version:
-    description: 'Kernel version'
-    required: true
-  branch:
-    description: 'device branch'
-    required: true
 
 runs:
  using: composite
@@ -19,25 +12,25 @@ runs:
      
      patch -p1 < "$KERNEL_PATCHES/common/optimized_mem_operations.patch"
      patch -p1 < "$KERNEL_PATCHES/common/file_struct_8bytes_align.patch"
-     if [[ ${{ inputs.branch }} != SM-S926* && ${{ inputs.branch }} != SM-A546* ]]; then
+     if [[ $BRANCH != SM-S926* && $BRANCH != SM-A546* ]]; then
      patch -p1 < "$KERNEL_PATCHES/common/reduce_cache_pressure.patch"
      patch -p1 < "$KERNEL_PATCHES/common/mem_opt_prefetch.patch"
      else
      echo "skipping cache pressure and opt prefetch patch for S24 plus"
      fi
 
-     if [[ ${{ inputs.branch }} == SM-A546* || ${{ inputs.branch }} == SM-S926* || ${{ inputs.branch }} == SM-A556* || ${{ inputs.branch }} == SM-M146B* || ${{ inputs.branch }} == SM-S908B* ]]; then
-      if [ "$(printf '%s\n' "${{ inputs.kernel_version }}" "$MIN_VERSION" | sort -V | tail -n1)" = "${{ inputs.kernel_version }}" ]; then
+     if [[ $BRANCH == SM-A546* || $BRANCH == SM-S926* || $BRANCH == SM-A556* || $BRANCH == SM-M146B* || $BRANCH == SM-S908B* ]]; then
+      if [ "$(printf '%s\n' "$KERNEL_VERSION" "$MIN_VERSION" | sort -V | tail -n1)" = "$KERNEL_VERSION" ]; then
        patch -p1 < "$KERNEL_PATCHES/common/Samsung/optimise_memcmp_exynos.patch"
-      elif [ "$(printf '%s\n' "${{ inputs.kernel_version }}" "5.11" | sort -V | tail -n1)" = "${{ inputs.kernel_version }}" ]; then
+      elif [ "$(printf '%s\n' "$KERNEL_VERSION" "5.11" | sort -V | tail -n1)" = "$KERNEL_VERSION" ]; then
         sed -e 's/SYM_FUNC_START(__pi_memcmp)/SYM_FUNC_START_WEAK_PI(memcmp)/' -e 's/SYM_FUNC_END(__pi_memcmp)/SYM_FUNC_END_PI(memcmp)/' -e 's/SYM_FUNC_ALIAS_WEAK(memcmp, __pi_memcmp)/EXPORT_SYMBOL_NOKASAN(memcmp)/' "$KERNEL_PATCHES/common/Samsung/optimise_memcmp_exynos.patch" | patch -p1
       else
         patch -p1 < "$KERNEL_PATCHES/common/Samsung/optimise_noneon_memcmp_android12_5.10.patch"
       fi
      else
-      if [ "$(printf '%s\n' "${{ inputs.kernel_version }}" "$MIN_VERSION" | sort -V | tail -n1)" = "${{ inputs.kernel_version }}" ]; then
+      if [ "$(printf '%s\n' "$KERNEL_VERSION" "$MIN_VERSION" | sort -V | tail -n1)" = "$KERNEL_VERSION" ]; then
        patch -p1 < "$KERNEL_PATCHES/common/optimise_memcmp.patch"
-      elif [ "$(printf '%s\n' "${{ inputs.kernel_version }}" "5.11" | sort -V | tail -n1)" = "${{ inputs.kernel_version }}" ]; then
+      elif [ "$(printf '%s\n' "$KERNEL_VERSION" "5.11" | sort -V | tail -n1)" = "$KERNEL_VERSION" ]; then
         sed -e 's/SYM_FUNC_START(__pi_memcmp)/SYM_FUNC_START_WEAK_PI(memcmp)/' -e 's/SYM_FUNC_END(__pi_memcmp)/SYM_FUNC_END_PI(memcmp)/' -e 's/SYM_FUNC_ALIAS_WEAK(memcmp, __pi_memcmp)/EXPORT_SYMBOL_NOKASAN(memcmp)/' "$KERNEL_PATCHES/common/optimise_memcmp.patch" | patch -p1
       else
         patch -p1 < "$KERNEL_PATCHES/common/Samsung/optimise_noneon_memcmp_android12_5.10.patch"
@@ -46,7 +39,7 @@ runs:
 
      sed -i 's/pm_wakeup_event(dev, 2 \* MSEC_PER_SEC);/pm_wakeup_event(dev, ktime_to_ms(min) + 1);/' kernel/time/alarmtimer.c
      patch -p1 < "$KERNEL_PATCHES/common/int_sqrt.patch"
-     if [[ ${{ inputs.branch }} != SM-S926* && ${{ inputs.branch }} != SM-A546* ]]; then
+     if [[ $BRANCH != SM-S926* && $BRANCH != SM-A546* ]]; then
      patch -p1 < "$KERNEL_PATCHES/common/force_tcp_nodelay.patch"
      patch -p1 < "$KERNEL_PATCHES/common/reduce_gc_thread_sleep_time.patch"
      else
@@ -56,7 +49,7 @@ runs:
      patch -p1 < "$KERNEL_PATCHES/common/f2fs_reduce_congestion.patch"
      patch -p1 < "$KERNEL_PATCHES/common/reduce_freeze_timeout.patch"
 
-     if [ "$(printf '%s\n' "${{ inputs.kernel_version }}" "$MIN_VERSION" | sort -V | head -n1)" = "${{ inputs.kernel_version }}" ]; then
+     if [ "$(printf '%s\n' "$KERNEL_VERSION" "$MIN_VERSION" | sort -V | head -n1)" = "$KERNEL_VERSION" ]; then
        patch -p1 < "$KERNEL_PATCHES/common/clear_page_16bytes_align.patch"
      else
        sed -e 's/SYM_FUNC_START_PI(clear_page)/SYM_FUNC_START(__pi_clear_page)/' "$KERNEL_PATCHES/common/clear_page_16bytes_align.patch" | patch -p1
@@ -69,12 +62,12 @@ runs:
      echo "Patching adjust_cpu_scan_order.patch"
      patch -p1 < "$KERNEL_PATCHES/common/adjust_cpu_scan_order.patch"
      echo "patching void_extra_s2idle_wake_attempts.patch"
-     if [[ "${{ inputs.branch }}" == "SM-S928B-Oneui8.5" || "${{ inputs.branch }}" == "SM-S926B-Oneui8.5" || "${{ inputs.branch }}" == "SM-S938B-Oneui8.5" || "${{ inputs.branch }}" == "SM-S931B-Oneui8.5" ]]; then
+     if [[ "$BRANCH" == "SM-S928B-Oneui8.5" || "$BRANCH" == "SM-S926B-Oneui8.5" || "$BRANCH" == "SM-S938B-Oneui8.5" || "$BRANCH" == "SM-S931B-Oneui8.5" ]]; then
       patch -p1 < "$KERNEL_PATCHES/common/Samsung/avoid_extra_s2idle_wake_attempts_oneui8.5.patch"
      else
       patch -p1 < "$KERNEL_PATCHES/common/avoid_extra_s2idle_wake_attempts.patch"
      fi
-     if [[ ${{ inputs.branch }} != SM-S926* && ${{ inputs.branch }} != SM-A546* ]]; then
+     if [[ $BRANCH != SM-S926* && $BRANCH != SM-A546* ]]; then
      echo "Patching disable_cache_hot_buddy.patch"
      patch -p1 < "$KERNEL_PATCHES/common/disable_cache_hot_buddy.patch"
      else
