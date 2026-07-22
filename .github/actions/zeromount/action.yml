@@ -11,6 +11,13 @@ inputs:
 runs:
  using: composite
  steps:
+  - name: clone zeromount
+    shell: bash
+    run: | 
+     git clone https://github.com/jimsterino98/Super-Builders.git
+     ZEROMOUNT="$ROOT/Super-Builders"
+     echo "ZEROMOUNT=$ZEROMOUNT" >> $GITHUB_ENV
+     
   - name: apply zeromount patches
     shell: bash
     run: |
