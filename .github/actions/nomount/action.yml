@@ -1,9 +1,5 @@
 name: add nomount
 description: add and configure nomount
-inputs:
-  kernel_version:
-   description: 'Kernel version (6.1)'
-   required: true
 
 runs:
   using: composite
@@ -19,8 +15,8 @@ runs:
      shell: bash
      run: |
       cd "$COMMON"
-      #patch -p1 "$NOMOUNT/kernel/patches/nomount_${{ inputs.kernel_version }}_kernel_integration.patch"
-      curl -L -s "https://raw.githubusercontent.com/maxsteeel/nomount/refs/heads/dev/kernel/patches/nomount_${{ inputs.kernel_version }}_kernel_integration.patch" | patch -p1
+      #patch -p1 "$NOMOUNT/kernel/patches/nomount_$KERNEL_VERSION_kernel_integration.patch"
+      curl -L -s "https://raw.githubusercontent.com/maxsteeel/nomount/refs/heads/dev/kernel/patches/nomount_$KERNEL_VERSION_kernel_integration.patch" | patch -p1
 
    - name: copy required files
      shell: bash
