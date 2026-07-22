@@ -1,12 +1,5 @@
 name: add ntsync
 description: integrate ntsync into kernel
-inputs:
-  android_version:
-    description: 'Android version (android14)'
-    required: true
-  kernel_version:
-    description: 'Kernel version (6.1)'
-    required: true
 
 runs:
   using: composite
@@ -16,7 +9,7 @@ runs:
      run: |
       cd "$COMMON"
       patch -p1 < "$KERNEL_PATCHES/common/ntsync/ntsync_base.patch"
-      patch -p1 < "$KERNEL_PATCHES/common/ntsync/ntsync_compat_${{ inputs.android_version }}-${{ inputs.kernel_version }}.patch"
+      patch -p1 < "$KERNEL_PATCHES/common/ntsync/ntsync_compat_$ANDROID_VERSION-$KERNEL_VERSION.patch"
       
    - name: enable ntsync config
      shell: bash
