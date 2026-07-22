@@ -1,9 +1,5 @@
 name: add droidspaces
 description: apply patches and configs for droidspaces support
-inputs:
- kernel_version:
-  description: 'Kernel version (5.10)'
-  required: true
 
 runs:
  using: composite
@@ -15,7 +11,7 @@ runs:
      # ABI: use ABI padding for SYSVIPC This commit allows us to enable CONFIG_SYSVIPC in defconfig without breaking kernel ABI
      patch -p1 < "$KERNEL_PATCHES/common/droidspaces/fix_sysvipc_kabi_6_7_8.patch"
 
-     if [[ "${{ inputs.kernel_version }}" == "5.10" ]]; then
+     if [[ "$KERNEL_VERSION" == "5.10" ]]; then
       patch -p1 < "$KERNEL_PATCHES/common/droidspaces/fix_abi_padding_for_posix_mqueue.patch"
      fi
 
