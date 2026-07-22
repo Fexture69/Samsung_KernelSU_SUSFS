@@ -1,18 +1,5 @@
 name: set variables
 description: set environment variables
-inputs:
- susfs:
-  description: 'susfs'
-  required: true
- branch:
-  description: 'device kernel'
-  required: true
- zeromount:
-  description: 'zeromount'
-  required: true
- nomount:
-  description: 'nomount'
-  required: true
 
 runs:
  using: composite
@@ -30,15 +17,15 @@ runs:
   - name: set common variable
     shell: bash
     run: |
-     if [[ ${{ inputs.branch }} == SM-A546* || "${{ inputs.branch }}" == "SM-M146B-Oneui7-ADYJ2" || "${{ inputs.branch }}" == "SM-S908B-Oneui8-bitK" || "${{ inputs.branch }}" == "SM-X610-Oneui6.1.1-bit7" || "${{ inputs.branch }}" == "SM-A166B-Oneui7" ]]; then  
+     if [[ $BRANCH == SM-A546* || "$BRANCH" == "SM-M146B-Oneui7-ADYJ2" || "$BRANCH" == "SM-S908B-Oneui8-bitK" || "$BRANCH" == "SM-X610-Oneui6.1.1-bit7" || "$BRANCH" == "SM-A166B-Oneui7" ]]; then  
        COMMON="$CONFIG"
-     elif [[ "${{ inputs.branch }}" == "SM-A566B" || ${{ inputs.branch }} == SM-A055* ]]; then
+     elif [[ "$BRANCH" == "SM-A566B" || $BRANCH == SM-A055* ]]; then
        COMMON="$CONFIG/kernel-6.6"
-     elif [[ ${{ inputs.branch }} == SM-S926B* || ${{ inputs.branch }} == SM-A556* ]]; then
+     elif [[ $BRANCH == SM-S926B* || $BRANCH == SM-A556* ]]; then
        COMMON="$CONFIG/kernel"
-     elif [[ "${{ inputs.branch }}" == "SM-A075M-Oneui7" ]]; then
+     elif [[ "$BRANCH" == "SM-A075M-Oneui7" ]]; then
        COMMON="$CONFIG/kernel-5.10"
-     elif [[ "${{ inputs.branch }}" == "SM-X926B-Oneui6.1" ]]; then
+     elif [[ "$BRANCH" == "SM-X926B-Oneui6.1" ]]; then
        COMMON="$CONFIG/kernel-6.1"
      else
        COMMON="$CONFIG/kernel_platform/common"
@@ -48,17 +35,17 @@ runs:
   - name: set defconfig variable
     shell: bash
     run: |
-     if [[ ${{ inputs.branch }} == SM-A546B* ]]; then
+     if [[ $BRANCH == SM-A546B* ]]; then
        GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e8835-a54xnaxx_defconfig"
-     elif [[ ${{ inputs.branch }} == SM-A546E* ]]; then
+     elif [[ $BRANCH == SM-A546E* ]]; then
        GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e8835-a54xnsxx_defconfig"
-     elif [[ "${{ inputs.branch }}" == "SM-M146B-Oneui7-ADYJ2" ]]; then
+     elif [[ "$BRANCH" == "SM-M146B-Oneui7-ADYJ2" ]]; then
        GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e8535-m14xnsxx_defconfig"
-     elif [[ "${{ inputs.branch }}" == "SM-S908B-Oneui8-bitK" ]]; then
+     elif [[ "$BRANCH" == "SM-S908B-Oneui8-bitK" ]]; then
        GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e9925-b0sxxx_defconfig"
-     elif [[ "${{ inputs.branch }}" == "SM-X610-Oneui6.1.1-bit7" ]]; then
+     elif [[ "$BRANCH" == "SM-X610-Oneui6.1.1-bit7" ]]; then
       GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e8835-gts9fepwifixx_defconfig"
-     elif [[ "${{ inputs.branch }}" == "SM-A166B-Oneui7" ]]; then
+     elif [[ "$BRANCH" == "SM-A166B-Oneui7" ]]; then
       GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e8535-a16xxx_defconfig"
      else
        GKI_DEFCONFIG="$COMMON/arch/arm64/configs/gki_defconfig"
