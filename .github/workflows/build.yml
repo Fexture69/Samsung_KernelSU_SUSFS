@@ -89,13 +89,14 @@ jobs:
           testing: false
 
       - name: Setup more Swap (for LTO)
+        if: inputs.build_type == 'make'
         uses: thejerrybao/setup-swap-space@v1   # or pierotofy/set-swap-space
         with:
           swap-size-gb: 25          # 10-24 GB is common for heavy LTO
         # swap-space-path: /mnt/swapfile   # optional
 
       - name: Parse branch for cache keys
-        if: inputs.cache == 'true'
+        if: inputs.cache == 'true' && inputs.build_type == 'make'
         uses: ./.github/actions/parse-branch
         with:
          branch: ${{ inputs.branch }}
