@@ -8,6 +8,13 @@ inputs:
 runs:
   using: composite
   steps:
+   - name: clone nomount repo
+     shell: bash
+     run: |
+      git clone https://github.com/maxsteeel/nomount.git -b dev
+      NOMOUNT="$ROOT/nomount"
+      echo "NOMOUNT=$NOMOUNT" >> $GITHUB_ENV
+      
    - name: apply nomount patch
      shell: bash
      run: |
@@ -25,6 +32,4 @@ runs:
    - name: add to defconfig
      shell: bash
      run: |
-      cat >> "$GKI_DEFCONFIG" << 'EOF'
-      CONFIG_NOMOUNT=y
-      EOF
+      "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_NOMOUNT
