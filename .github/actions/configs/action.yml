@@ -1,9 +1,5 @@
 name: add configs
 description: add configs and disabling securities
-inputs:
- branch:
-   description: 'which device kernel'
-   required: true
 
 runs:
  using: composite
@@ -24,11 +20,11 @@ runs:
      # 1. Determine which defconfig file needs to be patched based on the branch
      target_config=""
      
-     if [[ ${{ inputs.branch }} == SM-S938B* || "${{ inputs.branch }}" == "SM-S931B-Oneui8" ]]; then
+     if [[ $BRANCH == SM-S938B* || "$BRANCH" == "SM-S931B-Oneui8" ]]; then
          echo "Nothing to see here, moving on..."
-     elif [[ "${{ inputs.branch }}" == SM-S926B* ]]; then
+     elif [[ "$BRANCH" == SM-S926B* ]]; then
          target_config="$COMMON/arch/arm64/configs/s5e9945-bazel_defconfig"
-     elif [[ "${{ inputs.branch }}" == SM-A556* ]]; then
+     elif [[ "$BRANCH" == SM-A556* ]]; then
          target_config="$COMMON/arch/arm64/configs/s5e8845-bazel_defconfig"
      else
          target_config="$GKI_DEFCONFIG"
