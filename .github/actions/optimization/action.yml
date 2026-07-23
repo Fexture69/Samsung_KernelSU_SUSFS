@@ -20,17 +20,17 @@ runs:
      fi
 
      if [[ $BRANCH == SM-A546* || $BRANCH == SM-S926* || $BRANCH == SM-A556* || $BRANCH == SM-M146B* || $BRANCH == SM-S908B* ]]; then
-      if [ "$(printf '%s\n' "$KERNEL_VERSION" "$MIN_VERSION" | sort -V | tail -n1)" = "$KERNEL_VERSION" ]; then
+      if [ "$(printf '%s\n' "$KERNEL_VER" "$MIN_VERSION" | sort -V | tail -n1)" = "$KERNEL_VER" ]; then
        patch -p1 < "$KERNEL_PATCHES/common/Samsung/optimise_memcmp_exynos.patch"
-      elif [ "$(printf '%s\n' "$KERNEL_VERSION" "5.11" | sort -V | tail -n1)" = "$KERNEL_VERSION" ]; then
+      elif [ "$(printf '%s\n' "$KERNEL_VER" "5.11" | sort -V | tail -n1)" = "$KERNEL_VER" ]; then
         sed -e 's/SYM_FUNC_START(__pi_memcmp)/SYM_FUNC_START_WEAK_PI(memcmp)/' -e 's/SYM_FUNC_END(__pi_memcmp)/SYM_FUNC_END_PI(memcmp)/' -e 's/SYM_FUNC_ALIAS_WEAK(memcmp, __pi_memcmp)/EXPORT_SYMBOL_NOKASAN(memcmp)/' "$KERNEL_PATCHES/common/Samsung/optimise_memcmp_exynos.patch" | patch -p1
       else
         patch -p1 < "$KERNEL_PATCHES/common/Samsung/optimise_noneon_memcmp_android12_5.10.patch"
       fi
      else
-      if [ "$(printf '%s\n' "$KERNEL_VERSION" "$MIN_VERSION" | sort -V | tail -n1)" = "$KERNEL_VERSION" ]; then
+      if [ "$(printf '%s\n' "$KERNEL_VER" "$MIN_VERSION" | sort -V | tail -n1)" = "$KERNEL_VER" ]; then
        patch -p1 < "$KERNEL_PATCHES/common/optimise_memcmp.patch"
-      elif [ "$(printf '%s\n' "$KERNEL_VERSION" "5.11" | sort -V | tail -n1)" = "$KERNEL_VERSION" ]; then
+      elif [ "$(printf '%s\n' "$KERNEL_VER" "5.11" | sort -V | tail -n1)" = "$KERNEL_VER" ]; then
         sed -e 's/SYM_FUNC_START(__pi_memcmp)/SYM_FUNC_START_WEAK_PI(memcmp)/' -e 's/SYM_FUNC_END(__pi_memcmp)/SYM_FUNC_END_PI(memcmp)/' -e 's/SYM_FUNC_ALIAS_WEAK(memcmp, __pi_memcmp)/EXPORT_SYMBOL_NOKASAN(memcmp)/' "$KERNEL_PATCHES/common/optimise_memcmp.patch" | patch -p1
       else
         patch -p1 < "$KERNEL_PATCHES/common/Samsung/optimise_noneon_memcmp_android12_5.10.patch"
@@ -49,7 +49,7 @@ runs:
      patch -p1 < "$KERNEL_PATCHES/common/f2fs_reduce_congestion.patch"
      patch -p1 < "$KERNEL_PATCHES/common/reduce_freeze_timeout.patch"
 
-     if [ "$(printf '%s\n' "$KERNEL_VERSION" "$MIN_VERSION" | sort -V | head -n1)" = "$KERNEL_VERSION" ]; then
+     if [ "$(printf '%s\n' "$KERNEL_VER" "$MIN_VERSION" | sort -V | head -n1)" = "$KERNEL_VER" ]; then
        patch -p1 < "$KERNEL_PATCHES/common/clear_page_16bytes_align.patch"
      else
        sed -e 's/SYM_FUNC_START_PI(clear_page)/SYM_FUNC_START(__pi_clear_page)/' "$KERNEL_PATCHES/common/clear_page_16bytes_align.patch" | patch -p1
