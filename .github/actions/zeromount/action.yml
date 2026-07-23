@@ -17,10 +17,10 @@ runs:
      echo "adding zeromount..."
             
       cd "$COMMON"
-      cp "$ZEROMOUNT/$ANDROID_VERSION-$KERNEL_VERSION/WildKSU/patches/60_zeromount-$ANDROID_VERSION-$KERNEL_VERSION.patch" .
-      #patch -p1 < 51_enhanced_susfs_gki-$ANDROID_VERSION-$KERNEL_VERSION.patch || true
-      patch -p1 < 60_zeromount-$ANDROID_VERSION-$KERNEL_VERSION.patch || true
-      rm -rf 60_zeromount-$ANDROID_VERSION-$KERNEL_VERSION.patch
+      cp "$ZEROMOUNT/$ANDROID_VER-$KERNEL_VER/WildKSU/patches/60_zeromount-$ANDROID_VER-$KERNEL_VER.patch" .
+      #patch -p1 < 51_enhanced_susfs_gki-$ANDROID_VER-$KERNEL_VER.patch || true
+      patch -p1 < 60_zeromount-$ANDROID_VER-$KERNEL_VER.patch || true
+      rm -rf 60_zeromount-$ANDROID_VER-$KERNEL_VER.patch
 
       if [ -f fs/proc/task_mmu.c.rej ]; then
         echo "Fixing task_mmu.c..."
@@ -46,7 +46,7 @@ runs:
             perl -0pi -e 's@(config IO_WQ\n\tbool\n)@\1\nconfig ZEROMOUNT\n\tbool "ZeroMount Path Redirection Subsystem"\n\tdefault y\n\thelp\n\t  ZeroMount allows path redirection and virtual file injection\n\t  without mounting filesystems. Useful for systemless modifications.\n\n@' fs/Kconfig
         fi
       fi
-      #patch -p1 < 70_ksu_safety-wksu-$KERNEL_VERSION.patch || true
+      #patch -p1 < 70_ksu_safety-wksu-$KERNEL_VER.patch || true
 
   - name: apply zeromount patches
     shell: bash
