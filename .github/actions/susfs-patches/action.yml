@@ -7,7 +7,7 @@ runs:
    - name: clone susfs
      shell: bash
      run: |
-      SUSFS_BRANCH="gki-$ANDROID_VERSION-$KERNEL_VERSION"
+      SUSFS_BRANCH="gki-$ANDROID_VER-$KERNEL_VER"
       git clone https://gitlab.com/simonpunk/susfs4ksu.git -b "$SUSFS_BRANCH"
 
       git config --global user.name "github-actions[bot]"
@@ -18,13 +18,13 @@ runs:
       git log ..FETCH_HEAD --oneline -n 2 | awk '{print $1}' | tac | xargs git cherry-pick
       
       #cd susfs4ksu
-      #if [[ "$ANDROID_VERSION-$KERNEL_VERSION" == "android12-5.10" ]]; then
+      #if [[ "$ANDROID_VER-$KERNEL_VER" == "android12-5.10" ]]; then
         #COMMIT=ce2c2b2dea28c89d33f61af898cc18a93bf65ae9
-      #elif [[ "$ANDROID_VERSION-$KERNEL_VERSION" == "android13-5.15" ]]; then
+      #elif [[ "$ANDROID_VER-$KERNEL_VER" == "android13-5.15" ]]; then
        # COMMIT=529919fbc9f8aee6ee70eb3a8890ef33af0a109c
-      #elif [[ "$ANDROID_VERSION-$KERNEL_VERSION" == "android14-6.1" ]]; then
+      #elif [[ "$ANDROID_VER-$KERNEL_VER" == "android14-6.1" ]]; then
         #COMMIT=d1327b62e0854603cfc26e2226e0a993ec9b0656
-      #elif [[ "$ANDROID_VERSION-$KERNEL_VERSION" == "android15-6.6" ]]; then
+      #elif [[ "$ANDROID_VER-$KERNEL_VER" == "android15-6.6" ]]; then
         #COMMIT=676d202ed2cc322a2f90bcb2b56bc4f6a864acb8
       #fi
       #git checkout "$COMMIT"
@@ -81,8 +81,8 @@ runs:
      run: |
       cd "$COMMON"
       # Apply SUSFS core patch
-      patch -p1 < 50_add_susfs_in_gki-$ANDROID_VERSION-$KERNEL_VERSION.patch || true
-      rm -rf 50_add_susfs_in_gki-$ANDROID_VERSION-$KERNEL_VERSION.patch
+      patch -p1 < 50_add_susfs_in_gki-$ANDROID_VER-$KERNEL_VER.patch || true
+      rm -rf 50_add_susfs_in_gki-$ANDROID_VER-$KERNEL_VER.patch
 
       shopt -s nullglob
       patches=("$KERNEL_PATCHES/samsung/$BRANCH"/*.patch)
