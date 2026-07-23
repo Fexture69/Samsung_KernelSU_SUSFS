@@ -28,9 +28,9 @@ runs:
 
           echo "Checking: $file"
 
-          CONTENT=$(curl -s "$RAW_URL")
+          CONTENT=$(curl -fsSL "$RAW_URL" || true)
 
-          if echo "$CONTENT" | grep -qE '^VERSION[[:space:]]*='; then
+          if echo "$CONTENT" | grep -E '^VERSION[[:space:]]*=' >/dev/null; then
             MAKEFILE_PATH="$file"
             MAKEFILE_CONTENT="$CONTENT"
             break
@@ -44,11 +44,11 @@ runs:
 
         echo "Found kernel Makefile: $MAKEFILE_PATH"
 
-        VERSION=$(echo "$MAKEFILE_CONTENT" | grep -m1 -E '^VERSION[[:space:]]*=' | awk '{print $3}')
-        PATCHLEVEL=$(echo "$MAKEFILE_CONTENT" | grep -m1 -E '^PATCHLEVEL[[:space:]]*=' | awk '{print $3}')
+        VERSION=$(echo "$MAKEFILE_CONTENT" | grep -E '^VERSION[[:space:]]*=' | awk '{print $3}' | head -n1)
+        PATCHLEVEL=$(echo "$MAKEFILE_CONTENT" | grep -E '^PATCHLEVEL[[:space:]]*=' | awk '{print $3}' | head -n1)
 
         if [ -z "$VERSION" ] || [ -z "$PATCHLEVEL" ]; then
-          echo "::error::Could not extract kernel version"
+          echo "::error::Could not extract kernel version from $MAKEFILE_PATH"
           exit 1
         fi
 
