@@ -7,12 +7,9 @@ runs:
   - name: add mountify support
     shell: bash
     run: |
-     cat >> "$GKI_DEFCONFIG" << 'EOF'
-     # Mountify Support
-     CONFIG_OVERLAY_FS=y
-     CONFIG_TMPFS_XATTR=y
-     CONFIG_TMPFS_POSIX_ACL=y
-     EOF
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_OVERLAY_FS
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_TMPFS_XATTR
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_TMPFS_POSIX_ACL
      
   - name: nuke securities for root access
     shell: bash
