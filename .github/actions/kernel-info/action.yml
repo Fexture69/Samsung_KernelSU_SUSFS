@@ -75,5 +75,5 @@ runs:
         echo "Android: $ANDROID_VERSION"
         echo "Kernel: $KERNEL_VERSION"
 
-        echo "ANDROID_VERSION=$ANDROID_VERSION" >> "$GITHUB_ENV"
-        echo "KERNEL_VERSION=$KERNEL_VERSION" >> "$GITHUB_ENV"
+        echo "ANDROID_VER=$ANDROID_VERSION" >> "$GITHUB_ENV"
+        echo "KERNEL_VER=$KERNEL_VERSION" >> "$GITHUB_ENV"
