@@ -11,35 +11,31 @@ runs:
 
         echo "Searching for kernel Makefile on branch $BRANCH"
 
-        TREE_URL="https://api.github.com/repos/$REPO/git/trees/$BRANCH?recursive=1"
-
-        # Download tree once
-        TREE_JSON=$(curl -s "$TREE_URL")
-
-        if [ -z "$TREE_JSON" ]; then
-          echo "::error::Failed to download repository tree"
-          exit 1
-        fi
-
-        # Extract all Makefiles
-        echo "$TREE_JSON" | jq -r '.tree[].path' > files.txt
+        POSSIBLE_MAKEFILES=(
+          "kernel_platform/common/Makefile"
+          "kernel/Makefile"
+          "kernel-6.6/Makefile"
+          "kernel-6.1/Makefile"
+          "kernel-5.10/Makefile"
+          "Makefile"
+        )
 
         MAKEFILE_PATH=""
+        MAKEFILE_CONTENT=""
 
-        while read -r file; do
-          case "$file" in
-            *Makefile)
-              echo "Checking: $file"
+        for file in "${POSSIBLE_MAKEFILES[@]}"; do
+          RAW_URL="https://raw.githubusercontent.com/$REPO/$BRANCH/$file"
 
-              CONTENT=$(curl -s "https://raw.githubusercontent.com/$REPO/$BRANCH/$file")
+          echo "Checking: $file"
 
-              if echo "$CONTENT" | grep -qE '^VERSION[[:space:]]*='; then
-                MAKEFILE_PATH="$file"
-                break
-              fi
-              ;;
-          esac
-        done < files.txt
+          CONTENT=$(curl -s "$RAW_URL")
+
+          if echo "$CONTENT" | grep -qE '^VERSION[[:space:]]*='; then
+            MAKEFILE_PATH="$file"
+            MAKEFILE_CONTENT="$CONTENT"
+            break
+          fi
+        done
 
         if [ -z "$MAKEFILE_PATH" ]; then
           echo "::error::Could not find kernel Makefile"
@@ -47,10 +43,6 @@ runs:
         fi
 
         echo "Found kernel Makefile: $MAKEFILE_PATH"
-
-        RAW_URL="https://raw.githubusercontent.com/$REPO/$BRANCH/$MAKEFILE_PATH"
-
-        MAKEFILE_CONTENT=$(curl -s "$RAW_URL")
 
         VERSION=$(echo "$MAKEFILE_CONTENT" | grep -m1 -E '^VERSION[[:space:]]*=' | awk '{print $3}')
         PATCHLEVEL=$(echo "$MAKEFILE_CONTENT" | grep -m1 -E '^PATCHLEVEL[[:space:]]*=' | awk '{print $3}')
