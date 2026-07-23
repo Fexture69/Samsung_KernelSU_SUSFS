@@ -9,59 +9,79 @@ runs:
       run: |
         REPO="WildKernels/Samsung_Kernels"
 
-        echo "Searching for root Makefile on branch $BRANCH"
+        echo "Searching for kernel Makefile on branch $BRANCH"
 
-        # Get repository tree without cloning
         TREE_URL="https://api.github.com/repos/$REPO/git/trees/$BRANCH?recursive=1"
 
-        MAKEFILES=$(curl -s "$TREE_URL" | jq -r '.tree[].path' | grep 'Makefile$')
+        # Download tree once
+        TREE_JSON=$(curl -s "$TREE_URL")
 
-        for file in $MAKEFILES; do
-        CONTENT=$(curl -s "https://raw.githubusercontent.com/$REPO/$BRANCH/$file")
-        
-        if echo "$CONTENT" | grep -q '^VERSION[[:space:]]*='; then
-           MAKEFILE_PATH="$file"
-           break
+        if [ -z "$TREE_JSON" ]; then
+          echo "::error::Failed to download repository tree"
+          exit 1
         fi
-        done
+
+        # Extract all Makefiles
+        echo "$TREE_JSON" | jq -r '.tree[].path' > files.txt
+
+        MAKEFILE_PATH=""
+
+        while read -r file; do
+          case "$file" in
+            *Makefile)
+              echo "Checking: $file"
+
+              CONTENT=$(curl -s "https://raw.githubusercontent.com/$REPO/$BRANCH/$file")
+
+              if echo "$CONTENT" | grep -qE '^VERSION[[:space:]]*='; then
+                MAKEFILE_PATH="$file"
+                break
+              fi
+              ;;
+          esac
+        done < files.txt
 
         if [ -z "$MAKEFILE_PATH" ]; then
-        echo "::error::Could not find kernel Makefile"
-        exit 1
+          echo "::error::Could not find kernel Makefile"
+          exit 1
         fi
-        
+
         echo "Found kernel Makefile: $MAKEFILE_PATH"
 
-        # Download only the Makefile
         RAW_URL="https://raw.githubusercontent.com/$REPO/$BRANCH/$MAKEFILE_PATH"
 
         MAKEFILE_CONTENT=$(curl -s "$RAW_URL")
 
-        VERSION=$(echo "$MAKEFILE_CONTENT" | grep -m1 '^VERSION[[:space:]]*=' | awk '{print $3}')
-        PATCHLEVEL=$(echo "$MAKEFILE_CONTENT" | grep -m1 '^PATCHLEVEL[[:space:]]*=' | awk '{print $3}')
+        VERSION=$(echo "$MAKEFILE_CONTENT" | grep -m1 -E '^VERSION[[:space:]]*=' | awk '{print $3}')
+        PATCHLEVEL=$(echo "$MAKEFILE_CONTENT" | grep -m1 -E '^PATCHLEVEL[[:space:]]*=' | awk '{print $3}')
 
         if [ -z "$VERSION" ] || [ -z "$PATCHLEVEL" ]; then
-          echo "::error::Could not extract kernel version from Makefile"
+          echo "::error::Could not extract kernel version"
           exit 1
         fi
 
         KERNEL_VERSION="$VERSION.$PATCHLEVEL"
 
-        
-        if [ "$KERNEL_VERSION" = "5.10" ]; then
-           ANDROID_VERSION="android12"
-        elif [ "$KERNEL_VERSION" = "5.15" ]; then
-           ANDROID_VERSION="android13"
-        elif [ "$KERNEL_VERSION" = "6.1" ]; then
-           ANDROID_VERSION="android14"
-        elif [ "$KERNEL_VERSION" = "6.6" ]; then
-           ANDROID_VERSION="android15"
-        else
-           ANDROID_VERSION="unknown"
-        fi
-        
+        case "$KERNEL_VERSION" in
+          5.10)
+            ANDROID_VERSION="android12"
+            ;;
+          5.15)
+            ANDROID_VERSION="android13"
+            ;;
+          6.1)
+            ANDROID_VERSION="android14"
+            ;;
+          6.6)
+            ANDROID_VERSION="android15"
+            ;;
+          *)
+            ANDROID_VERSION="unknown"
+            ;;
+        esac
+
         echo "Android: $ANDROID_VERSION"
         echo "Kernel: $KERNEL_VERSION"
-        
+
         echo "ANDROID_VERSION=$ANDROID_VERSION" >> "$GITHUB_ENV"
         echo "KERNEL_VERSION=$KERNEL_VERSION" >> "$GITHUB_ENV"
