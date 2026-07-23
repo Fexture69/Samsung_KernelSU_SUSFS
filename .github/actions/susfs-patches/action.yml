@@ -101,7 +101,7 @@ runs:
         echo "No patch file found, skipping"
       fi
 
-   - name: fix __fold function error for s25 ultra oneui7
+   - name: fix VMA_PAD error
      if: ${{ env.BRANCH == 'SM-X926B-Oneui6.1' || env.BRANCH == 'SM-A546B-Oneui6.0' || env.BRANCH == 'SM-S9180-Oneui6.1' }}
      shell: bash
      run: |
@@ -114,6 +114,7 @@ runs:
      if: ${{ env.BRANCH == 'SM-S938B-Oneui7' }}
      shell: bash
      run: |
+       cd "$COMMON"
        sed -i '/static int show_map_vma/i \
        #ifdef CONFIG_KSU_SUSFS_OPEN_REDIRECT\nstatic inline void __fold_filemap_fixup_entry(struct vma_iterator *vmi, unsigned long *end)\n{\n\tstruct vm_area_struct *next = vma_next(vmi);\n\tif (next) {\n\t\t*end = next->vm_start;\n\t\tvma_prev(vmi);\n\t}\n}\n#endif\n' fs/proc/task_mmu.c
        
