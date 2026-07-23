@@ -4,49 +4,57 @@ description: get kernel version before cloning
 runs:
   using: composite
   steps:
-    - name: Locate and extract version metadata
+    - name: Locate and extract kernel version
       shell: bash
       run: |
-        TARGET_FILE="build.config.constants"
         REPO="WildKernels/Samsung_Kernels"
 
-        echo "Searching for $TARGET_FILE on branch $BRANCH"
+        echo "Searching for root Makefile on branch $BRANCH"
 
         # Get repository tree without cloning
         TREE_URL="https://api.github.com/repos/$REPO/git/trees/$BRANCH?recursive=1"
 
-        FILE_PATH=$(curl -s "$TREE_URL" | \
+        MAKEFILE_PATH=$(curl -s "$TREE_URL" | \
           jq -r '.tree[].path' | \
-          grep "/$TARGET_FILE$" | \
-          head -n 1)
+          grep -x "Makefile")
 
-        if [ -z "$FILE_PATH" ]; then
-          echo "::error::Could not find $TARGET_FILE"
+        if [ -z "$MAKEFILE_PATH" ]; then
+          echo "::error::Could not find root Makefile"
           exit 1
         fi
 
-        echo "Found: $FILE_PATH"
+        echo "Found: $MAKEFILE_PATH"
 
-        # Download only the file
-        RAW_URL="https://raw.githubusercontent.com/$REPO/$BRANCH/$FILE_PATH"
+        # Download only the Makefile
+        RAW_URL="https://raw.githubusercontent.com/$REPO/$BRANCH/$MAKEFILE_PATH"
 
-        FILE_CONTENT=$(curl -s "$RAW_URL")
+        MAKEFILE_CONTENT=$(curl -s "$RAW_URL")
 
-        BRANCH_LINE=$(echo "$FILE_CONTENT" | grep "^BRANCH=" | head -n 1)
+        VERSION=$(echo "$MAKEFILE_CONTENT" | grep -m1 '^VERSION[[:space:]]*=' | awk '{print $3}')
+        PATCHLEVEL=$(echo "$MAKEFILE_CONTENT" | grep -m1 '^PATCHLEVEL[[:space:]]*=' | awk '{print $3}')
 
-        if [ -z "$BRANCH_LINE" ]; then
-          echo "::error::BRANCH= not found"
+        if [ -z "$VERSION" ] || [ -z "$PATCHLEVEL" ]; then
+          echo "::error::Could not extract kernel version from Makefile"
           exit 1
         fi
 
-        # Extract versions
-        VERSION=${BRANCH_LINE#*=}
+        KERNEL_VERSION="$VERSION.$PATCHLEVEL"
 
-        ANDROID_VERSION=${VERSION%-*}
-        KERNEL_VERSION=${VERSION##*-}
-
+        
+        if [ "$KERNEL_VERSION" = "5.10" ]; then
+           ANDROID_VERSION="android12"
+        elif [ "$KERNEL_VERSION" = "5.15" ]; then
+           ANDROID_VERSION="android13"
+        elif [ "$KERNEL_VERSION" = "6.1" ]; then
+           ANDROID_VERSION="android14"
+        elif [ "$KERNEL_VERSION" = "6.6" ]; then
+           ANDROID_VERSION="android15"
+        else
+           ANDROID_VERSION="unknown"
+        fi
+        
         echo "Android: $ANDROID_VERSION"
         echo "Kernel: $KERNEL_VERSION"
-
+        
         echo "ANDROID_VERSION=$ANDROID_VERSION" >> "$GITHUB_ENV"
         echo "KERNEL_VERSION=$KERNEL_VERSION" >> "$GITHUB_ENV"
