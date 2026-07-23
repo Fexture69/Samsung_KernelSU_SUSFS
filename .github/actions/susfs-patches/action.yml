@@ -81,6 +81,7 @@ runs:
      run: |
       cd "$COMMON"
       # Apply SUSFS core patch
+      sed -i 's/end = VMA_PAD_START(vma);/end = vma->vm_end;/' 50_add_susfs_in_gki-$ANDROID_VERSION-$KERNEL_VERSION.patch 
       patch -p1 < 50_add_susfs_in_gki-$ANDROID_VERSION-$KERNEL_VERSION.patch || true
       rm -rf 50_add_susfs_in_gki-$ANDROID_VERSION-$KERNEL_VERSION.patch
 
