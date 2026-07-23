@@ -312,8 +312,6 @@ jobs:
           
       - name: Prepare AnyKernel3
         uses: ./.github/actions/ak3zip-prep
-        with:
-         branch: ${{ inputs.branch }}
 
       - name: Upload AnyKernel3 Artifacts
         id: upload_ak3
