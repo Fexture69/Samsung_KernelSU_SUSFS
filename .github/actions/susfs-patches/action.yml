@@ -58,7 +58,7 @@ runs:
       cd "$COMMON"
       cp "$SUSFS4KSU/kernel_patches/fs/"* ./fs/
       cp "$SUSFS4KSU/kernel_patches/include/linux/"* ./include/linux/
-      cp "$SUSFS4KSU/kernel_patches/50_add_susfs_in_gki-$ANDROID_VERSION-$KERNEL_VERSION.patch" ./          
+      cp "$SUSFS4KSU/kernel_patches/50_add_susfs_in_gki-$ANDROID_VER-$KERNEL_VER.patch" ./          
 
    - name: prepare namespace and open.c for susfs patch because scamsung
      shell: bash
