@@ -96,6 +96,11 @@ runs:
          fi
      fi
 
+  - name: check IKCONFIG
+    shell: bash
+    run: |
+     "$COMMON/scripts/extract-ikconfig" "$KERNEL_IMAGE" | grep -E 'CONFIG_UH|CONFIG_UH_RKP|CONFIG_UH_LKMAUTH|CONFIG_UH_LKM_BLOCK|CONFIG_RKP|CONFIG_RKP_CFP_JOPP|CONFIG_RKP_CFP_ROPP|CONFIG_RKP_CFP|CONFIG_SECURITY_DEFEX|CONFIG_PROCA|CONFIG_FIVE|CONFIG_KDP|CONFIG_KDP_NS'
+
 
      #if [[ $BRANCH == SM-S928B* || $BRANCH == SM-S931* || $BRANCH == SM-F741* ]]; then
      # KERNEL_IMAGE=$(find kernel_platform/out -type f -path "*_kbuild_mixed_tree/Image" | head -n1)
