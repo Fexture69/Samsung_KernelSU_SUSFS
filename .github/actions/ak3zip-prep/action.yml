@@ -76,6 +76,7 @@ runs:
          echo "========================================================"
          echo "SUCCESS: Selected kernel binary path:"
          echo "  -> $KERNEL_IMAGE"
+         echo "KERNEL_IMAGE=$KERNEL_IMAGE" >> $GITHUB_ENV
          echo "========================================================"
      else
          echo "WARNING: Could not locate '$target_name' inside specified priority targets!"
