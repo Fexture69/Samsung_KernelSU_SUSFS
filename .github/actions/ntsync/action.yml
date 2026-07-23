@@ -9,7 +9,7 @@ runs:
      run: |
       cd "$COMMON"
       patch -p1 < "$KERNEL_PATCHES/common/ntsync/ntsync_base.patch"
-      patch -p1 < "$KERNEL_PATCHES/common/ntsync/ntsync_compat_$ANDROID_VERSION-$KERNEL_VERSION.patch"
+      patch -p1 < "$KERNEL_PATCHES/common/ntsync/ntsync_compat_$ANDROID_VER-$KERNEL_VER.patch"
       
    - name: enable ntsync config
      shell: bash
