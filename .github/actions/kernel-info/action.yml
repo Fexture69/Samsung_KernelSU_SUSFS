@@ -2,49 +2,51 @@ name: get kernel version before cloning
 description: get kernel version before cloning
 
 runs:
- using: composite
- steps:
-      - name: Locate, Fetch, and Split Version Metadata
-        shell: bash
-        run: |
-          TARGET_FILE="build.config.constants"
-          REPO_URL="https://github.com/WildKernels/Samsung_Kernels"
-          
-          echo "Searching for ${TARGET_FILE} on branch: $BRANCH..."
-          
-          # 1. Download ONLY the file list (tree index) of the remote branch
-          # This runs instantly, takes zero disk space, and requires no tokens
-          FILE_PATH=$(git archive --remote="$REPO_URL" "$BRANCH" | tar -t | grep "${TARGET_FILE}" | head -n 1)
-          
-          if [ -z "$FILE_PATH" ]; then
-            echo "::error::Could not find ${TARGET_FILE} anywhere on branch $BRANCH"
-            exit 1
-          fi
-          
-          echo "File discovered at path: $FILE_PATH"
-          
-          # 2. Fetch the raw file content from its dynamically discovered location
-          RAW_URL="https://githubusercontent.com/WildKernels/Samsung_Kernels/$BRANCH/$FILE_PATH"
-          FILE_CONTENT=$(curl -s "$RAW_URL")
-          
-          # 3. Extract the BRANCH= line
-          BRANCH_LINE=$(echo "$FILE_CONTENT" | grep "^BRANCH=" | head -n 1)
-          
-          if [ -z "$BRANCH_LINE" ]; then
-            echo "::error::Could not find BRANCH= line inside $FILE_PATH"
-            exit 1
-          fi
-          
-          # 4. Parse components using awk (splits by '=' and '-')
-          ANDROID_VER=$(echo "$BRANCH_LINE" | awk -F'[=-]' '{print $2}' | tr -d '" .')
-          KERNEL_VER=$(echo "$BRANCH_LINE" | awk -F'[=-]' '{print $3}' | tr -d '" .')
-          
-          echo "Parsed Android Version: $ANDROID_VER"
-          echo "Parsed Kernel Version: $KERNEL_VER"
-          
-          # 5. Export directly to GitHub Environment Variables
-          echo "ANDROID_VERSION=$ANDROID_VER" >> $GITHUB_ENV
-          echo "KERNEL_VERSION=$KERNEL_VER" >> $GITHUB_ENV
+  using: composite
+  steps:
+    - name: Locate and extract version metadata
+      shell: bash
+      run: |
+        TARGET_FILE="build.config.constants"
+        REPO="WildKernels/Samsung_Kernels"
 
+        echo "Searching for $TARGET_FILE on branch $BRANCH"
 
+        # Get repository tree without cloning
+        TREE_URL="https://api.github.com/repos/$REPO/git/trees/$BRANCH?recursive=1"
 
+        FILE_PATH=$(curl -s "$TREE_URL" | \
+          jq -r '.tree[].path' | \
+          grep "/$TARGET_FILE$" | \
+          head -n 1)
+
+        if [ -z "$FILE_PATH" ]; then
+          echo "::error::Could not find $TARGET_FILE"
+          exit 1
+        fi
+
+        echo "Found: $FILE_PATH"
+
+        # Download only the file
+        RAW_URL="https://raw.githubusercontent.com/$REPO/$BRANCH/$FILE_PATH"
+
+        FILE_CONTENT=$(curl -s "$RAW_URL")
+
+        BRANCH_LINE=$(echo "$FILE_CONTENT" | grep "^BRANCH=" | head -n 1)
+
+        if [ -z "$BRANCH_LINE" ]; then
+          echo "::error::BRANCH= not found"
+          exit 1
+        fi
+
+        # Extract versions
+        VERSION=${BRANCH_LINE#*=}
+
+        ANDROID_VERSION=${VERSION%-*}
+        KERNEL_VERSION=${VERSION##*-}
+
+        echo "Android: $ANDROID_VERSION"
+        echo "Kernel: $KERNEL_VERSION"
+
+        echo "ANDROID_VERSION=$ANDROID_VERSION" >> "$GITHUB_ENV"
+        echo "KERNEL_VERSION=$KERNEL_VERSION" >> "$GITHUB_ENV"
