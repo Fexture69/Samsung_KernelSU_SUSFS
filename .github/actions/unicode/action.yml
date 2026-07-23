@@ -8,9 +8,9 @@ runs:
     shell: bash
     run: |
      cd "$COMMON"
-     echo "detected kernel version: $KERNEL_VERSION"
+     echo "detected kernel version: $KERNEL_VER"
 
-     if [[ $KERNEL_VERSION == 6.* ]]; then
+     if [[ $KERNEL_VER == 6.* ]]; then
       cp "$KERNEL_PATCHES/common/unicode_bypass_fix_6.1+.patch" .
       patch -p1 < unicode_bypass_fix_6.1+.patch
      else
