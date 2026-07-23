@@ -15,8 +15,9 @@ runs:
         TREE_URL="https://api.github.com/repos/$REPO/git/trees/$BRANCH?recursive=1"
 
         MAKEFILE_PATH=$(curl -s "$TREE_URL" | \
-          jq -r '.tree[].path' | \
-          grep -x "Makefile")
+        jq -r '.tree[].path' | \
+        grep 'Makefile$' | \
+        head -n 1)
 
         if [ -z "$MAKEFILE_PATH" ]; then
           echo "::error::Could not find root Makefile"
