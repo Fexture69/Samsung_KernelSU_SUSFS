@@ -31,9 +31,6 @@ on:
       ntsync:
         required: true
         type: string
-      bbrv1:
-        required: true
-        type: string
       bbrv3:
         required: true
         type: string
@@ -166,7 +163,6 @@ jobs:
       ksun: ${{ inputs.ksun }}
       droidspace: ${{ inputs.droidspace }}
       ntsync: ${{ inputs.ntsync }}
-      bbrv1: ${{ inputs.bbrv1 }}
       bbrv3: ${{ inputs.bbrv3 }}
       cache: ${{ inputs.cache }}
       ipv6_nat: ${{ inputs.ipv6_nat }}
