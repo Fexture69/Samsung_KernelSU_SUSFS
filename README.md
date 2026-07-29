@@ -121,5 +121,9 @@ PayPal: [paypal.me/NgadhnjimHoxha](paypal.me/NgadhnjimHoxha)
 
 Wise: [wise.com/pay/me/ngadhnjimh](wise.com/pay/me/ngadhnjimh)
 
+Ko-fi: [https://ko-fi.com/jimsterino98](https://ko-fi.com/jimsterino98)
+
+Buy me a coffee: [buymeacoffee.com/jimsterino98](buymeacoffee.com/jimsterino98)
+
 DM on telegram for crypto donations!
 
