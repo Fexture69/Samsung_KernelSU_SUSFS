@@ -17,7 +17,7 @@ runs:
   - name: set common variable
     shell: bash
     run: |
-     if [[ $BRANCH == SM-A546* || "$BRANCH" == "SM-M146B-Oneui7-ADYJ2" || "$BRANCH" == "SM-S908B-Oneui8-bitK" || "$BRANCH" == "SM-X610-Oneui6.1.1-bit7" || "$BRANCH" == "SM-A166B-Oneui7" ]]; then  
+     if [[ $BRANCH == SM-A546* || "$BRANCH" == "SM-M146B-Oneui7-ADYJ2" || "$BRANCH" == "SM-S908B-Oneui8-bitK" || $BRANCH == SM-X610* || "$BRANCH" == "SM-A166B-Oneui7" || "$BRANCH" == "SM-A356E-Oneui8" ]]; then  
        COMMON="$CONFIG"
      elif [[ "$BRANCH" == "SM-A566B" || $BRANCH == SM-A055* ]]; then
        COMMON="$CONFIG/kernel-6.6"
@@ -43,10 +43,12 @@ runs:
        GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e8535-m14xnsxx_defconfig"
      elif [[ "$BRANCH" == "SM-S908B-Oneui8-bitK" ]]; then
        GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e9925-b0sxxx_defconfig"
-     elif [[ "$BRANCH" == "SM-X610-Oneui6.1.1-bit7" ]]; then
+     elif [[ $BRANCH == SM-X610* ]]; then
       GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e8835-gts9fepwifixx_defconfig"
      elif [[ "$BRANCH" == "SM-A166B-Oneui7" ]]; then
       GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e8535-a16xxx_defconfig"
+     elif [[ "$BRANCH" == "SM-A356E-Oneui8" ]]; then
+      GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e8835-a35xjvxx_defconfig"
      else
        GKI_DEFCONFIG="$COMMON/arch/arm64/configs/gki_defconfig"
      fi
