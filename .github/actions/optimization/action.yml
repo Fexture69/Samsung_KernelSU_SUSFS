@@ -40,7 +40,7 @@ runs:
      sed -i 's/pm_wakeup_event(dev, 2 \* MSEC_PER_SEC);/pm_wakeup_event(dev, ktime_to_ms(min) + 1);/' kernel/time/alarmtimer.c
      patch -p1 < "$KERNEL_PATCHES/common/int_sqrt.patch"
      if [[ $BRANCH != SM-S926* && $BRANCH != SM-A546* ]]; then
-     patch -p1 < "$KERNEL_PATCHES/common/force_tcp_nodelay.patch"
+     #patch -p1 < "$KERNEL_PATCHES/common/force_tcp_nodelay.patch"
      patch -p1 < "$KERNEL_PATCHES/common/reduce_gc_thread_sleep_time.patch"
      else
      echo "skipping force tcp no delay and reduce gc thread sleep time patches for s24 plus"
