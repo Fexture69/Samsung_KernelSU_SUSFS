@@ -104,7 +104,7 @@ jobs:
 
  #     - name: set up bazel cache
  #       if: inputs.build_type == 'Bazel' && inputs.cache == 'true'
- #       uses: actions/cache@v4
+ #       uses: actions/cache@v6
  #       with:
  #        path: ${{ env.BCACHE_DIR }}
  #        key: bcache-${{ runner.os }}-${{ inputs.build_type }}-${{ env.FULL_BRANCH }}
@@ -152,7 +152,7 @@ jobs:
 
       - name: restore ccache
         if: inputs.cache == 'true' && inputs.build_type == 'make'
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ env.CCACHE_DIR }}
           key: ccache-${{ runner.os }}-${{ inputs.build_type }}-${{ env.BASE_BRANCH }}
