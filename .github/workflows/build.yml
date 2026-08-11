@@ -269,6 +269,7 @@ jobs:
          ksun: ${{ inputs.ksun }}
          susfs: ${{ inputs.susfs }}
          zeromount: ${{ inputs.zeromount }}
+         nomount: ${{ inputs.nomount }}
          bbg: ${{ inputs.bbg }}
          bbrv3: ${{ inputs.bbrv3 }}
          droidspaces: ${{ inputs.droidspace }}
