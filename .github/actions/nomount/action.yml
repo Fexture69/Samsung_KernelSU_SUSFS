@@ -4,26 +4,11 @@ description: add and configure nomount
 runs:
   using: composite
   steps:
-   - name: clone nomount repo
-     shell: bash
-     run: |
-      git clone https://github.com/maxsteeel/nomount.git -b dev
-      NOMOUNT="$ROOT/nomount"
-      echo "NOMOUNT=$NOMOUNT" >> $GITHUB_ENV
-      
-   - name: apply nomount patch
+   - name: run setup script
      shell: bash
      run: |
       cd "$COMMON"
-      #patch -p1 "$NOMOUNT/kernel/patches/nomount_$KERNEL_VERSION_kernel_integration.patch"
-      curl -L -s "https://raw.githubusercontent.com/maxsteeel/nomount/refs/heads/dev/kernel/patches/nomount_${KERNEL_VER}_kernel_integration.patch" | patch -p1
-
-   - name: copy required files
-     shell: bash
-     run: |
-      cd "$COMMON/fs"
-      curl -LO "https://raw.githubusercontent.com/maxsteeel/nomount/refs/heads/dev/kernel/src/nomount.c"
-      curl -LO "https://raw.githubusercontent.com/maxsteeel/nomount/refs/heads/dev/kernel/src/nomount.h"
+      curl https://raw.githubusercontent.com/maxsteeel/nomount/refs/heads/dev/kernel/setup.sh | bash -s dev
 
    - name: add to defconfig
      shell: bash
