@@ -19,7 +19,7 @@ runs:
      echo "skipping cache pressure and opt prefetch patch for S24 plus"
      fi
 
-     if [[ $BRANCH == SM-A546* || $BRANCH == SM-S926* || $BRANCH == SM-A556* || $BRANCH == SM-M146B* || $BRANCH == SM-S908B* || $BRANCH == SM-A356*]]; then
+     if [[ $BRANCH == SM-A546* || $BRANCH == SM-S926* || $BRANCH == SM-A556* || $BRANCH == SM-M146B* || $BRANCH == SM-S908B* || $BRANCH == SM-A356* ]]; then
       if [ "$(printf '%s\n' "$KERNEL_VER" "$MIN_VERSION" | sort -V | tail -n1)" = "$KERNEL_VER" ]; then
        patch -p1 < "$KERNEL_PATCHES/common/Samsung/optimise_memcmp_exynos.patch"
       elif [ "$(printf '%s\n' "$KERNEL_VER" "5.11" | sort -V | tail -n1)" = "$KERNEL_VER" ]; then
