@@ -24,10 +24,10 @@ runs:
       LTO=full ./build_kernel.sh || true
      elif [[ $BRANCH == SM-S926* ]]; then
        #tools/bazel run --nocheck_bzl_visibility --config=stamp --sandbox_debug --verbose_failures --debug_make_verbosity=I //projects/s5e9945:s5e9945_user_dist
-       tools/bazel build --nocheck_bzl_visibility --config=stamp --sandbox_debug --verbose_failures --debug_make_verbosity=I //projects/s5e9945:s5e9945_user
+       tools/bazel build --nocheck_bzl_visibility --config=stamp --sandbox_debug --verbose_failures --debug_make_verbosity=I --lto=full //projects/s5e9945:s5e9945_user
       elif [[ $BRANCH == SM-A556* ]]; then
        #tools/bazel run --nocheck_bzl_visibility --config=stamp --sandbox_debug --verbose_failures --debug_make_verbosity=I //projects/s5e8845:s5e8845_user_dist
-       tools/bazel build --nocheck_bzl_visibility --config=stamp --sandbox_debug --verbose_failures --debug_make_verbosity=I //projects/s5e8845:s5e8845_user
+       tools/bazel build --nocheck_bzl_visibility --config=stamp --sandbox_debug --verbose_failures --debug_make_verbosity=I --lto=full //projects/s5e8845:s5e8845_user
      elif [[ $BRANCH == SM-S938B* ]]; then
       sed -i '/drivers\/net\/usb\/smsc75xx\.ko/d;/drivers\/net\/usb\/smsc95xx\.ko/d' kernel_platform/common/modules.bzl
       chmod +x build_kernel_GKI.sh
@@ -37,7 +37,7 @@ runs:
       LTO=full ./build_kernel_GKI.sh || true
      elif [[ -d kernel_platform ]]; then
       cd kernel_platform
-      tools/bazel build //common:kernel_aarch64
+      tools/bazel build --lto=full //common:kernel_aarch64
      fi
       
   - name: start make build
