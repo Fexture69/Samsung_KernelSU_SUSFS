@@ -14,5 +14,5 @@ runs:
   - name: remove dirty flag
     shell: bash
     run: |
-     
-     sed -i 's/-dirty//' "./$COMMON/scripts/setlocalversion"
+     cd "$COMMON"
+     sed -i 's/-dirty//' ./scripts/setlocalversion
