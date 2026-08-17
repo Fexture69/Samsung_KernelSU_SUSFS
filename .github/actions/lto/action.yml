@@ -7,5 +7,7 @@ runs:
   - name: enable FULL LTO
     shell: bash
     run: |
-     cd "$COMMON"
-     sed -i '/^default LTO_NONE$/s/default LTO_NONE/default LTO_CLANG_FULL/' arch/Kconfig
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_LTO_CLANG
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --disable CONFIG_LTO_NONE
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --disable CONFIG_LTO_CLANG_THIN
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_LTO_CLANG_FULL
