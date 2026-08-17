@@ -49,7 +49,7 @@ runs:
       GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e8835-gts9fepwifixx_defconfig"
      elif [[ "$BRANCH" == "SM-A166B-Oneui7" ]]; then
       GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e8535-a16xxx_defconfig"
-     elif [[ "$BRANCH" == "SM-A356E-Oneui8" ]]; then
+     elif [[ $BRANCH == SM-A356E* ]]; then
       GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e8835-a35xjvxx_defconfig"
      elif [[ $BRANCH == SM-S711* ]]; then
       GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e9925-r11sksx_defconfig"
