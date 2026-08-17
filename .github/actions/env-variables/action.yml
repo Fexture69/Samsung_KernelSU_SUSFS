@@ -18,7 +18,9 @@ runs:
     shell: bash
     run: |
      cd "$CONFIG"
-     if [[ -d kernel_platform/common ]]; then
+     if [[ -d arch ]]; then
+      COMMON="$(pwd)"
+     elif [[ -d kernel_platform/common ]]; then
       COMMON="$(pwd)/kernel_platform/common"
      elif [[ -d kernel-6.6 ]]; then
       COMMON="$(pwd)/kernel-6.6"
@@ -28,8 +30,6 @@ runs:
       COMMON="$(pwd)/kernel-5.10"
      elif [[ -d kernel ]]; then
       COMMON="$(pwd)/kernel"
-     else
-      COMMON="$(pwd)"
      fi
      
      echo "COMMON=$COMMON" >> $GITHUB_ENV
