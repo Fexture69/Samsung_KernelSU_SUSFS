@@ -17,19 +17,21 @@ runs:
   - name: set common variable
     shell: bash
     run: |
-     if [[ $BRANCH == SM-A546* || "$BRANCH" == "SM-M146B-Oneui7-ADYJ2" || "$BRANCH" == "SM-S908B-Oneui8-bitK" || $BRANCH == SM-X610* || "$BRANCH" == "SM-A166B-Oneui7" || "$BRANCH" == "SM-A356E-Oneui8" ]]; then  
-       COMMON="$CONFIG"
-     elif [[ "$BRANCH" == "SM-A566B" || $BRANCH == SM-A055* ]]; then
-       COMMON="$CONFIG/kernel-6.6"
-     elif [[ $BRANCH == SM-S926B* || $BRANCH == SM-A556* ]]; then
-       COMMON="$CONFIG/kernel"
-     elif [[ "$BRANCH" == "SM-A075M-Oneui7" ]]; then
-       COMMON="$CONFIG/kernel-5.10"
-     elif [[ "$BRANCH" == "SM-X926B-Oneui6.1" ]]; then
-       COMMON="$CONFIG/kernel-6.1"
+     cd "$CONFIG"
+     if [[ -d kernel_platform/common ]]; then
+      COMMON="$(pwd)/kernel_platform/common"
+     elif [[ -d kernel-6.6 ]]; then
+      COMMON="$(pwd)/kernel-6.6"
+     elif [[ -d kernel-6.1 ]]; then
+      COMMON="$(pwd)/kernel-6.1"
+     elif [[ -d kernel-5.10 ]]; then
+      COMMON="$(pwd)/kernel-5.10"
+     elif [[ -d kernel ]]; then
+      COMMON="$(pwd)/kernel"
      else
-       COMMON="$CONFIG/kernel_platform/common"
+      COMMON="$(pwd)"
      fi
+     
      echo "COMMON=$COMMON" >> $GITHUB_ENV
     
   - name: set defconfig variable
@@ -49,6 +51,8 @@ runs:
       GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e8535-a16xxx_defconfig"
      elif [[ "$BRANCH" == "SM-A356E-Oneui8" ]]; then
       GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e8835-a35xjvxx_defconfig"
+     elif [[ $BRANCH == SM-S711* ]]; then
+      GKI_DEFCONFIG="$COMMON/arch/arm64/configs/s5e9925-r11sksx_defconfig"
      else
        GKI_DEFCONFIG="$COMMON/arch/arm64/configs/gki_defconfig"
      fi
