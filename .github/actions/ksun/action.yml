@@ -57,5 +57,8 @@ runs:
       run: |
         set -euo pipefail
         cd "$COMMON/KernelSU-Next"
-        cp ${{ github.action_path }}/patches/static.patch ./
-        patch -p1 < static.patch
+        sed -i \
+        -e 's/^static int security_context_to_sid_with_policy(/int security_context_to_sid_with_policy(/' \
+        -e 's/^static int security_sid_to_context_with_policy(/int security_sid_to_context_with_policy(/' \
+        -e 's/^static void security_compute_av_user_with_policy(/void security_compute_av_user_with_policy(/' \
+        kernel/feature/selinux_hide.c
