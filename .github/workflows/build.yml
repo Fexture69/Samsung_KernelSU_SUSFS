@@ -21,9 +21,6 @@ on:
       unicodefix:
         required: true
         type: string
-      zeromount:
-        required: true
-        type: string
       nomount:
         required: true
         type: string
@@ -214,12 +211,6 @@ jobs:
       - name: Add SUSFS
         if: inputs.susfs == 'true'
         uses: ./.github/actions/susfs-patches
-        with:
-          nomount: ${{ inputs.nomount }}
-
-      - name: Add Zeromount
-        if: inputs.susfs == 'true' && inputs.zeromount == 'true'
-        uses: ./.github/actions/zeromount
 
       - name: add nomount
         if: inputs.nomount == 'true'
