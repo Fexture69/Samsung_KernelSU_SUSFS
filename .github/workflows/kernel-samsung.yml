@@ -16,9 +16,6 @@ on:
       unicodefix:
         required: true
         type: string
-      zeromount:
-        required: true
-        type: string
       nomount:
         required: true
         type: string
@@ -193,7 +190,6 @@ jobs:
       susfs: ${{ inputs.susfs }}
       bbg: ${{ inputs.bbg }}
       unicodefix: ${{ inputs.unicodefix }}
-      zeromount: ${{ inputs.zeromount }}
       nomount: ${{ inputs.nomount }}
       ksun: ${{ inputs.ksun }}
       droidspace: ${{ inputs.droidspace }}
