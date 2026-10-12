@@ -9,7 +9,11 @@ runs:
      run: |
       cd "$COMMON"
       patch -p1 < "$KERNEL_PATCHES/common/ntsync/ntsync_base.patch"
-      patch -p1 < "$KERNEL_PATCHES/common/ntsync/ntsync_compat_$ANDROID_VER-$KERNEL_VER.patch"
+      if [[ $BRANCH == SM-X800-Oneui6.1.1 ]]; then
+       patch -p1 < "$KERNEL_PATCHES/common/ntsync/ntsync_compat_$ANDROID_VER-$KERNEL_VER_A14.patch"
+      else
+       patch -p1 < "$KERNEL_PATCHES/common/ntsync/ntsync_compat_$ANDROID_VER-$KERNEL_VER.patch"
+      fi
       
    - name: enable ntsync config
      shell: bash
