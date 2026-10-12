@@ -39,12 +39,6 @@ on:
         type: boolean
         default: true
 
-      zeromount:
-        description: "Zeromount"
-        required: false
-        type: boolean
-        default: false
-
       nomount:
         description: "NoMount"
         required: false
@@ -114,7 +108,6 @@ jobs:
       susfs: ${{ inputs.susfs }}
       bbg: ${{ inputs.bbg }}
       unicodefix: ${{ inputs.unicodefix }}
-      zeromount: ${{ inputs.zeromount }}
       nomount: ${{ inputs.nomount }}
       ksun: ${{ inputs.ksun }}
       droidspace: ${{ inputs.droidspace }}
