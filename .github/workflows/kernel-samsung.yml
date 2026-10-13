@@ -126,7 +126,7 @@ jobs:
             build_type: "Bazel"
           - branch: "SM-F946B-Oneui8"
             build_type: "Bazel"
-          - branch: "SM-S916B-Oneui8"
+          - branch: "SM-S916B-Oneui8.5"
             build_type: "Bazel"
           - branch: "SM-S916B-Oneui8"
             build_type: "Bazel"
