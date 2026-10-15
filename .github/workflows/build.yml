@@ -263,7 +263,6 @@ jobs:
         uses: ./.github/actions/abi-export
         
       - name: Set file name
-        if: inputs.ksun == 'true'
         uses: ./.github/actions/file-name
         with:
          ksun: ${{ inputs.ksun }}
