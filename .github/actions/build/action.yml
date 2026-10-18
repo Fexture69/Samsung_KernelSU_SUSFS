@@ -30,7 +30,7 @@ runs:
        SCRIPT_LTO="LTO=$BUILD_LTO"
      fi
 
-     if [[ $BRANCH == SM-A055* || $BRANCH == SM-X926B* ]]; then
+     if [[ $BRANCH == SM-A055* || $BRANCH == SM-X926B* || $BRANCH == SM-A146P* ]]; then
       chmod +x build_kernel.sh
       env $SCRIPT_LTO ./build_kernel.sh || true
      elif [[ $BRANCH == SM-S926* ]]; then
