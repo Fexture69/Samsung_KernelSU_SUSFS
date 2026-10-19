@@ -58,7 +58,7 @@ runs:
        cd "$COMMON"
        #fake patch trace/hooks/blk.h for susfs patching for kernel 6.1 and 5.15
        if [[ $KERNEL_VER == 6.1 || $KERNEL_VER == 5.15 ]]; then
-         sed '/#include "internal.h"/a #include <trace/hooks/blk.h>' fs/namespace.c
+         sed -i '/#include "internal.h"/a #include <trace/hooks/blk.h>' fs/namespace.c
        fi
 
        #remove kdp_ns section for susfs patch
@@ -118,7 +118,7 @@ runs:
      run: |
        cd "$COMMON"
        if [[ $KERNEL_VER == 6.1 || $KERNEL_VER == 5.15 ]]; then
-        sed '/#include <trace\/hooks\/blk.h>/d' fs/namespace.c
+        sed -i '/#include <trace\/hooks\/blk.h>/d' fs/namespace.c
        fi
        
    - name: add ksu-susfs to config
