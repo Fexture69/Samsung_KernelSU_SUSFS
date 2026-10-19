@@ -51,14 +51,14 @@ runs:
         echo "KSU_VERSION=$KSU_VERSION" >> $GITHUB_ENV
         echo "KSU_COMMIT=$KSU_COMMIT" >> $GITHUB_ENV
 
-    - name: 'Fix KernelSU-Next'
-      if: inputs.susfs == 'true'
-      shell: bash
-      run: |
-        set -euo pipefail
-        cd "$COMMON/KernelSU-Next"
-        sed -i \
-        -e 's/^static int security_context_to_sid_with_policy(/int security_context_to_sid_with_policy(/' \
-        -e 's/^static int security_sid_to_context_with_policy(/int security_sid_to_context_with_policy(/' \
-        -e 's/^static void security_compute_av_user_with_policy(/void security_compute_av_user_with_policy(/' \
-        kernel/feature/selinux_hide.c
+#    - name: 'Fix KernelSU-Next'
+#      if: inputs.susfs == 'true'
+#      shell: bash
+#      run: |
+#        set -euo pipefail
+#        cd "$COMMON/KernelSU-Next"
+#        sed -i \
+#        -e 's/^static int security_context_to_sid_with_policy(/int security_context_to_sid_with_policy(/' \
+#        -e 's/^static int security_sid_to_context_with_policy(/int security_sid_to_context_with_policy(/' \
+#        -e 's/^static void security_compute_av_user_with_policy(/void security_compute_av_user_with_policy(/' \
+#        kernel/feature/selinux_hide.c
