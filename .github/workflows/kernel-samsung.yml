@@ -100,7 +100,7 @@ jobs:
             build_type: "Bazel"
           - branch: "SM-F731B-Oneui8.5"
             build_type: "Bazel"
-          - branch: "SM-A546B-Oneui8.5"
+          - branch: "SM-A546E-Oneui8.5"
             build_type: "make"
           - branch: "SM-A546B-Oneui8"
             build_type: "make"
