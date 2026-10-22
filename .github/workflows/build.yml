@@ -51,6 +51,9 @@ on:
       lto:
         required: true
         type: string
+      disable_security:
+        required: true
+        type: string
 
 jobs:
   build-samsung-gki:
@@ -255,6 +258,8 @@ jobs:
       - name: Set Kernel Configuration Variables
         if: inputs.ksun == 'true'
         uses: ./.github/actions/configs
+        with:
+          disable_security: ${{ inputs.disable_security }}
          
       - name: Change Kernel Name and clean dirty
         uses: ./.github/actions/kernel-name
