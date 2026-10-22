@@ -99,6 +99,12 @@ on:
        default: true
        type: boolean
 
+      disable_security:
+       description: "Disable Samsung security protections"
+       required: false
+       default: true
+       type: boolean
+
 jobs:
 
   build-samsung:
@@ -118,6 +124,7 @@ jobs:
       optimization: ${{ inputs.optimization }}
       ttl: ${{ inputs.ttl }}
       lto: ${{ inputs.lto }}
+      disable_security: ${{ inputs.disable_security }}
 
   release:
     runs-on: ubuntu-latest
