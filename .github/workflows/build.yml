@@ -181,7 +181,7 @@ jobs:
       - name: Set CONFIG Environment Variable
         run: |
           # Set CONFIG dynamically based on inputs values
-          CONFIG="$BRANCH-$ANDROID_VERSION_$KERNEL_VERSION"
+          CONFIG="${BRANCH}-${ANDROID_VER}_${KERNEL_VER}"
 
           # Set CONFIG as an environment variable for future steps
           echo "CONFIG=$CONFIG" >> $GITHUB_ENV

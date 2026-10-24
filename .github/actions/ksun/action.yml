@@ -24,10 +24,16 @@ runs:
         curl -LSs "https://raw.githubusercontent.com/pershoot/KernelSU-Next/dev-susfs/kernel/setup.sh" | bash -s dev-susfs
 
     - name: enable in defconfig
-      if: inputs.susfs == 'false'
       shell: bash
       run: |
-        "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_KSU
+         "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_KSU
+
+         if [[ ${{ inputs.susfs }} == 'true' ]]; then
+          "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --disable CONFIG_KSU_SAMSUNG_KDP
+          "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --disable CONFIG_KSU_SAMSUNG_RKP
+          "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --disable CONFIG_KSU_SAMSUNG_DEFEX
+          "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --disable CONFIG_KSU_SAMSUNG_NO_PATCH_TEXT
+         fi
       
     - name: Extract KSU Version Info and inject into Kbuild
       shell: bash
