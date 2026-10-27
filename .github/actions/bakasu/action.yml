@@ -1,0 +1,42 @@
+name: Set up BakaSU
+description: download and set up BakaSU into the kernel source
+inputs:
+  susfs:
+    description: 'susfs'
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - name: Setup BakaSU
+      shell: bash
+      run: |
+        cd "$COMMON"
+        curl -LSs "https://raw.githubusercontent.com/Baka-SU/BakaSU/main/kernel/setup.sh" | bash
+
+    - name: enable in defconfig
+      shell: bash
+      run: |
+        "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_KSU
+
+        if [[ ${{ inputs.susfs }} == 'true' ]]; then
+          "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_KSU_SUSFS
+        else
+          "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_KSU_TRACEPOINT_HOOK
+        fi
+
+    - name: Extract BakaSU Version Info
+      shell: bash
+      run: |
+        cd "$COMMON/KernelSU"
+
+        git fetch --tags 2>/dev/null || true
+
+        KSU_LOCAL_VERSION=$(git rev-list --count HEAD 2>/dev/null || echo 0)
+        KSU_GIT_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v4.2.0")
+        KSU_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "")
+        KSU_VERSION=$((30000 + KSU_LOCAL_VERSION + 700))
+
+        echo "KSU_GIT_TAG=$KSU_GIT_TAG" >> $GITHUB_ENV
+        echo "KSU_VERSION=$KSU_VERSION" >> $GITHUB_ENV
+        echo "KSU_COMMIT=$KSU_COMMIT" >> $GITHUB_ENV

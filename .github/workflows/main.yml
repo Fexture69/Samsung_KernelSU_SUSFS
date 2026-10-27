@@ -33,6 +33,12 @@ on:
         default: true
         type: boolean
 
+      bakasu:
+        description: "BakaSU"
+        required: false
+        default: false
+        type: boolean
+
       susfs:
         description: "SUSFS"
         required: false
@@ -116,6 +122,7 @@ jobs:
       unicodefix: ${{ inputs.unicodefix }}
       nomount: ${{ inputs.nomount }}
       ksun: ${{ inputs.ksun }}
+      bakasu: ${{ inputs.bakasu }}
       droidspace: ${{ inputs.droidspace }}
       ntsync: ${{ inputs.ntsync }}
       bbrv3: ${{ inputs.bbrv3 }}
@@ -182,6 +189,7 @@ jobs:
          echo "SUSFS_61=$(git ls-remote https://gitlab.com/simonpunk/susfs4ksu.git refs/heads/gki-android14-6.1 | cut -f1)" >> $GITHUB_ENV
          echo "SUSFS_66=$(git ls-remote https://gitlab.com/simonpunk/susfs4ksu.git refs/heads/gki-android15-6.6 | cut -f1)" >> $GITHUB_ENV
          echo "KSUN_HASH=$(git ls-remote https://github.com/pershoot/KernelSU-Next.git refs/heads/dev | cut -f1)" >> $GITHUB_ENV
+         echo "BAKASU_HASH=$(git ls-remote https://github.com/Baka-SU/BakaSU.git refs/heads/main | cut -f1)" >> $GITHUB_ENV
          echo "BBG_HASH=$(git ls-remote https://github.com/vc-teahouse/Baseband-guard.git refs/heads/main | cut -f1)" >> $GITHUB_ENV
          echo "NM_HASH=$(git ls-remote https://github.com/maxsteeel/nomount.git refs/heads/master | cut -f1)" >> $GITHUB_ENV
 
@@ -201,6 +209,12 @@ jobs:
           cat <<'EOF' >> release_body.md
           -> KernelSU-Next v3.4.2 - https://github.com/KernelSU-Next/KernelSU-Next
           NOTE: For kernel integration I am using pershoots fork of KernelSU-next. He has claimed that even though everything works fine, the dev has warned that this is not production ready!
+          EOF
+          fi
+
+          if [ "${{ inputs.bakasu }}" = "true" ]; then
+          cat <<'EOF' >> release_body.md
+          -> BakaSU - https://github.com/Baka-SU/BakaSU
           EOF
           fi
 
@@ -286,10 +300,18 @@ jobs:
 
           Commit Hashes:
           EOF
-          if ${{ inputs.ksun }} == 'true' ]]; then
+          if [[ "${{ inputs.ksun }}" == 'true' ]]; then
           cat <<'EOF' >> release_body.md
           
           KSUN: ${{ env.KSUN_HASH }}
+          
+          EOF
+          fi
+
+          if [[ "${{ inputs.bakasu }}" == 'true' ]]; then
+          cat <<'EOF' >> release_body.md
+          
+          BakaSU: ${{ env.BAKASU_HASH }}
           
           EOF
           fi

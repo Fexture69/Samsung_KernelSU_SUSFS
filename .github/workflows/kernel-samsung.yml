@@ -22,6 +22,9 @@ on:
       ksun:
         required: true
         type: string
+      bakasu:
+        required: true
+        type: string
       droidspace:
         required: true
         type: string
@@ -71,6 +74,7 @@ jobs:
       unicodefix: ${{ inputs.unicodefix }}
       nomount: ${{ inputs.nomount }}
       ksun: ${{ inputs.ksun }}
+      bakasu: ${{ inputs.bakasu }}
       droidspace: ${{ inputs.droidspace }}
       ntsync: ${{ inputs.ntsync }}
       bbrv3: ${{ inputs.bbrv3 }}

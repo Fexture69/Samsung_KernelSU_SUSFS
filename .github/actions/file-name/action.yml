@@ -4,6 +4,10 @@ inputs:
  ksun:
   description: 'ksun'
   required: true
+ bakasu:
+  description: 'bakasu'
+  required: false
+  default: 'false'
  susfs:
   description: 'susfs'
   required: true
@@ -43,6 +47,7 @@ runs:
      # This gives dynamic file name depending on which features are enabled
      FILE_NAME="${ARTIFACT_BASE}"
      [[ "${{ inputs.ksun }}" == "true" ]] && FILE_NAME="${FILE_NAME}-KSUN${KSU_VERSION}"
+     [[ "${{ inputs.bakasu }}" == "true" ]] && FILE_NAME="${FILE_NAME}-BakaSU${KSU_VERSION}"
      [[ "${{ inputs.susfs }}" == "true" ]] && FILE_NAME="${FILE_NAME}-SUSFS"
      [[ "${{ inputs.nomount }}" == "true" ]] && FILE_NAME="${FILE_NAME}-NM"
      [[ "${{ inputs.bbg }}" == "true" ]] && FILE_NAME="${FILE_NAME}-BBG"

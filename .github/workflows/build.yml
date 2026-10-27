@@ -27,6 +27,9 @@ on:
       ksun:
         required: true
         type: string
+      bakasu:
+        required: true
+        type: string
       droidspace:
         required: true
         type: string
@@ -210,6 +213,12 @@ jobs:
         uses: ./.github/actions/ksun
         with:
           susfs: ${{ inputs.susfs }}
+
+      - name: Add BakaSU
+        if: inputs.bakasu == 'true'
+        uses: ./.github/actions/bakasu
+        with:
+          susfs: ${{ inputs.susfs }}
         
       - name: Add SUSFS
         if: inputs.susfs == 'true'
@@ -271,6 +280,7 @@ jobs:
         uses: ./.github/actions/file-name
         with:
          ksun: ${{ inputs.ksun }}
+         bakasu: ${{ inputs.bakasu }}
          susfs: ${{ inputs.susfs }}
          nomount: ${{ inputs.nomount }}
          bbg: ${{ inputs.bbg }}
