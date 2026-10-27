@@ -60,7 +60,6 @@ jobs:
           - branch: "SM-S926B-Oneui8.5"
             build_type: "Bazel"
           
-
     uses: ./.github/workflows/build.yml
     secrets: inherit
     with:
