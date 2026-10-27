@@ -23,7 +23,7 @@ runs:
      "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_KALLSYMS_ALL
      "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_KPM
      
-  - name: nuke securities for root access
+  - name: Disable Samsung Protection
     if: inputs.disable_security == 'true'
     shell: bash
     run: |
@@ -48,23 +48,13 @@ runs:
      if [ -n "$target_config" ]; then
       echo "Nuking Samsung Knox/Root protection in: $target_config"
 
-     
-     "$COMMON/scripts/config" --file "$target_config" --disable CONFIG_UH
-     "$COMMON/scripts/config" --file "$target_config" --disable CONFIG_UH_RKP
-     "$COMMON/scripts/config" --file "$target_config" --disable CONFIG_UH_LKMAUTH
-     "$COMMON/scripts/config" --file "$target_config" --disable CONFIG_UH_LKM_BLOCK
-     "$COMMON/scripts/config" --file "$target_config" --disable CONFIG_RKP
-     "$COMMON/scripts/config" --file "$target_config" --disable CONFIG_RKP_CFP_JOPP
-     "$COMMON/scripts/config" --file "$target_config" --disable CONFIG_RKP_CFP_ROPP
-     "$COMMON/scripts/config" --file "$target_config" --disable CONFIG_RKP_CFP
-     "$COMMON/scripts/config" --file "$target_config" --disable CONFIG_SECURITY_DEFEX
-     "$COMMON/scripts/config" --file "$target_config" --disable CONFIG_PROCA
-     "$COMMON/scripts/config" --file "$target_config" --disable CONFIG_FIVE
-     "$COMMON/scripts/config" --file "$target_config" --disable CONFIG_KDP
-     "$COMMON/scripts/config" --file "$target_config" --disable CONFIG_KDP_NS
-     #"$COMMON/scripts/config" --file "$target_config" --disable CONFIG_KNOX
-     "$COMMON/scripts/config" --file "$target_config" --disable CONFIG_KNOX_NCM
-     #"$COMMON/scripts/config" --file "$target_config" --disable CONFIG_KNOX_KAP
+      # Disable Samsung Protection
+      "$COMMON/scripts/config" --file "$target_config" \
+          -d UH -d RKP -d KDP -d SECURITY_DEFEX -d INTEGRITY -d FIVE \
+          -d TRIM_UNUSED_KSYMS -d PROCA -d PROCA_GKI_10 -d PROCA_S_OS \
+          -d PROCA_CERTIFICATES_XATTR -d PROCA_CERT_ENG -d PROCA_CERT_USER \
+          -d GAF -d GAF_V6 -d FIVE_CERT_USER -d FIVE_DEFAULT_HASH \
+          -e CONFIG_TMPFS_XATTR -e CONFIG_TMPFS_POSIX_ACL
      fi
 
   - name: remove check_defconfig
