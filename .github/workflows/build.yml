@@ -255,8 +255,8 @@ jobs:
 #        if: ${{ env.KERNEL_VER == '6.6' }}
 #        uses: ./.github/actions/6.6-fix
 
-      - name: Set Kernel Configuration Variables
-        if: inputs.ksun == 'true' || inputs.disable_security == 'true'
+      - name: Disable Samsung Protection
+        if: inputs.disable_security == 'true'
         uses: ./.github/actions/configs
         with:
           disable_security: ${{ inputs.disable_security }}
