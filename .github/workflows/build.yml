@@ -256,7 +256,7 @@ jobs:
 #        uses: ./.github/actions/6.6-fix
 
       - name: Set Kernel Configuration Variables
-        if: inputs.ksun == 'true'
+        if: inputs.ksun == 'true' || inputs.disable_security == 'true'
         uses: ./.github/actions/configs
         with:
           disable_security: ${{ inputs.disable_security }}
