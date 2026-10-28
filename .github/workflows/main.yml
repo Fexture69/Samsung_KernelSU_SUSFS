@@ -205,16 +205,14 @@ jobs:
           Features:
           EOF
 
-          if [ "${{ inputs.ksun }}" = "true" ]; then
-          cat <<'EOF' >> release_body.md
-          -> KernelSU-Next v3.4.2 - https://github.com/KernelSU-Next/KernelSU-Next
-          NOTE: For kernel integration I am using pershoots fork of KernelSU-next. He has claimed that even though everything works fine, the dev has warned that this is not production ready!
-          EOF
-          fi
-
           if [ "${{ inputs.bakasu }}" = "true" ]; then
           cat <<'EOF' >> release_body.md
           -> BakaSU - https://github.com/Baka-SU/BakaSU
+          EOF
+          elif [ "${{ inputs.ksun }}" = "true" ]; then
+          cat <<'EOF' >> release_body.md
+          -> KernelSU-Next v3.4.2 - https://github.com/KernelSU-Next/KernelSU-Next
+          NOTE: For kernel integration I am using pershoots fork of KernelSU-next. He has claimed that even though everything works fine, the dev has warned that this is not production ready!
           EOF
           fi
 
@@ -300,7 +298,13 @@ jobs:
 
           Commit Hashes:
           EOF
-          if [[ "${{ inputs.ksun }}" == 'true' ]]; then
+          if [[ "${{ inputs.bakasu }}" == 'true' ]]; then
+          cat <<'EOF' >> release_body.md
+          
+          BakaSU: ${{ env.BAKASU_HASH }}
+          
+          EOF
+          elif [[ "${{ inputs.ksun }}" == 'true' ]]; then
           cat <<'EOF' >> release_body.md
           
           KSUN: ${{ env.KSUN_HASH }}
@@ -308,14 +312,7 @@ jobs:
           EOF
           fi
 
-          if [[ "${{ inputs.bakasu }}" == 'true' ]]; then
-          cat <<'EOF' >> release_body.md
-          
-          BakaSU: ${{ env.BAKASU_HASH }}
-          
-          EOF
-          fi
-          if ${{ inputs.susfs }} == 'true' ]]; then
+          if [[ "${{ inputs.susfs }}" == 'true' ]]; then
           cat <<'EOF' >> release_body.md
           SUSFS: 
           android12-5.10: ${{ env.SUSFS_510 }}

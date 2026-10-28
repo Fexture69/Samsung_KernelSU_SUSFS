@@ -45,9 +45,11 @@ runs:
      ARTIFACT_BASE="$BRANCH"
           
      # This gives dynamic file name depending on which features are enabled
-     FILE_NAME="${ARTIFACT_BASE}"
-     [[ "${{ inputs.ksun }}" == "true" ]] && FILE_NAME="${FILE_NAME}-KSUN${KSU_VERSION}"
-     [[ "${{ inputs.bakasu }}" == "true" ]] && FILE_NAME="${FILE_NAME}-BakaSU${KSU_VERSION}"
+     if [[ "${{ inputs.bakasu }}" == "true" ]]; then
+       FILE_NAME="${FILE_NAME}-BakaSU${KSU_VERSION}"
+     elif [[ "${{ inputs.ksun }}" == "true" ]]; then
+       FILE_NAME="${FILE_NAME}-KSUN${KSU_VERSION}"
+     fi
      [[ "${{ inputs.susfs }}" == "true" ]] && FILE_NAME="${FILE_NAME}-SUSFS"
      [[ "${{ inputs.nomount }}" == "true" ]] && FILE_NAME="${FILE_NAME}-NM"
      [[ "${{ inputs.bbg }}" == "true" ]] && FILE_NAME="${FILE_NAME}-BBG"

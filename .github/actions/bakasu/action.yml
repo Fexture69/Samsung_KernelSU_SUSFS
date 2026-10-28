@@ -14,29 +14,72 @@ runs:
         cd "$COMMON"
         curl -LSs "https://raw.githubusercontent.com/Baka-SU/BakaSU/main/kernel/setup.sh" | bash
 
+        # Ensure Kconfig and Makefile integration entries exist
+        if [ -f "$COMMON/drivers/Kconfig" ] && ! grep -q 'drivers/kernelsu/Kconfig' "$COMMON/drivers/Kconfig"; then
+          echo 'source "drivers/kernelsu/Kconfig"' >> "$COMMON/drivers/Kconfig"
+        fi
+        if [ -f "$COMMON/drivers/Makefile" ] && ! grep -q 'kernelsu' "$COMMON/drivers/Makefile"; then
+          echo 'obj-$(CONFIG_KSU) += kernelsu/' >> "$COMMON/drivers/Makefile"
+        fi
+
     - name: enable in defconfig
       shell: bash
       run: |
-        "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_KSU
+        target_configs=("$GKI_DEFCONFIG")
 
-        if [[ ${{ inputs.susfs }} == 'true' ]]; then
-          "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_KSU_SUSFS
-        else
-          "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_KSU_TRACEPOINT_HOOK
+        if [[ $BRANCH == SM-S926B* ]]; then
+            target_configs+=("$COMMON/arch/arm64/configs/s5e9945-bazel_defconfig")
+        elif [[ $BRANCH == SM-A556* ]]; then
+            target_configs+=("$COMMON/arch/arm64/configs/s5e8845-bazel_defconfig")
+        elif [[ $BRANCH == SM-A055* || $BRANCH == SM-A146P* ]]; then
+            target_configs+=("$CONFIG/kernel/kernel_device_modules-6.6/arch/arm64/configs/mediatek-bazel_defconfig")
+        elif [[ $BRANCH == SM-A075* ]]; then
+            target_configs+=("$COMMON/arch/arm64/configs/a07_00_defconfig")
         fi
 
-    - name: Extract BakaSU Version Info
+        for cfg in "${target_configs[@]}"; do
+          if [ -n "$cfg" ] && [ -f "$cfg" ]; then
+            echo "Applying BakaSU defconfig options to: $cfg"
+            "$COMMON/scripts/config" --file "$cfg" --enable CONFIG_KSU
+
+            if [[ ${{ inputs.susfs }} == 'true' ]]; then
+              "$COMMON/scripts/config" --file "$cfg" --disable CONFIG_KSU_TRACEPOINT_HOOK
+              "$COMMON/scripts/config" --file "$cfg" --enable CONFIG_KSU_SUSFS
+              "$COMMON/scripts/config" --file "$cfg" --disable CONFIG_KSU_SAMSUNG_KDP
+              "$COMMON/scripts/config" --file "$cfg" --disable CONFIG_KSU_SAMSUNG_RKP
+              "$COMMON/scripts/config" --file "$cfg" --disable CONFIG_KSU_SAMSUNG_DEFEX
+              "$COMMON/scripts/config" --file "$cfg" --disable CONFIG_KSU_SAMSUNG_NO_PATCH_TEXT
+            else
+              "$COMMON/scripts/config" --file "$cfg" --disable CONFIG_KSU_SUSFS
+              "$COMMON/scripts/config" --file "$cfg" --enable CONFIG_KSU_TRACEPOINT_HOOK
+            fi
+          fi
+        done
+
+    - name: Extract BakaSU Version Info and patch Bazel Kbuild
       shell: bash
       run: |
         cd "$COMMON/KernelSU"
 
         git fetch --tags 2>/dev/null || true
 
-        KSU_LOCAL_VERSION=$(git rev-list --count HEAD 2>/dev/null || echo 0)
+        KSU_LOCAL_VERSION=$(git rev-list --count HEAD 2>/dev/null)
+        [ -z "$KSU_LOCAL_VERSION" ] && KSU_LOCAL_VERSION=0
         KSU_GIT_TAG=$(git describe --tags --abbrev=0 2>/dev/null || echo "v4.2.0")
-        KSU_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "")
+        KSU_COMMIT=$(git rev-parse --short HEAD 2>/dev/null || echo "unknown")
         KSU_VERSION=$((30000 + KSU_LOCAL_VERSION + 700))
 
         echo "KSU_GIT_TAG=$KSU_GIT_TAG" >> $GITHUB_ENV
         echo "KSU_VERSION=$KSU_VERSION" >> $GITHUB_ENV
         echo "KSU_COMMIT=$KSU_COMMIT" >> $GITHUB_ENV
+
+        # In Bazel builds, the build runs inside a sandbox where .git is stripped.
+        # Patch kernel/Kbuild so BakaSU avoids submodule errors and git fetch failures in Bazel.
+        if [ -f kernel/Kbuild ]; then
+          sed -i 's/ifeq ($(LOCAL_GIT_EXISTS),0)/ifeq ($(LOCAL_GIT_EXISTS),__DISABLED__)/' kernel/Kbuild
+          sed -i 's|$(GIT_BIN) fetch --unshallow|true|' kernel/Kbuild
+          sed -i "s|^KSU_LOCAL_VERSION := .*|KSU_LOCAL_VERSION := ${KSU_LOCAL_VERSION}|" kernel/Kbuild
+          sed -i "s|^KSU_VERSION := .*|KSU_VERSION := ${KSU_VERSION}|" kernel/Kbuild
+          sed -i "s|^KSU_TAG_NAME    := .*|KSU_TAG_NAME := ${KSU_GIT_TAG}|" kernel/Kbuild
+          sed -i "s|^KSU_COMMIT_SHA  := .*|KSU_COMMIT_SHA := ${KSU_COMMIT}|" kernel/Kbuild
+        fi

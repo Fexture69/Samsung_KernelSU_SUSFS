@@ -209,7 +209,7 @@ jobs:
           done
 
       - name: Add KernelSU-Next
-        if: inputs.ksun == 'true'
+        if: inputs.ksun == 'true' && inputs.bakasu != 'true'
         uses: ./.github/actions/ksun
         with:
           susfs: ${{ inputs.susfs }}
