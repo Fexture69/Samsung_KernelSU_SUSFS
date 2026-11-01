@@ -52,6 +52,10 @@ on:
       disable_security:
         required: true
         type: string
+      ksu_lkm:
+        required: false
+        type: string
+        default: 'false'
 
 jobs:
   build-kernels-a12:
@@ -84,3 +88,4 @@ jobs:
       ttl: ${{ inputs.ttl }}
       lto: ${{ inputs.lto }}
       disable_security: ${{ inputs.disable_security }}
+      ksu_lkm: ${{ inputs.ksu_lkm }}

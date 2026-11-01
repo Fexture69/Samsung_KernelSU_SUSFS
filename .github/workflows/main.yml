@@ -111,6 +111,12 @@ on:
        default: true
        type: boolean
 
+      ksu_lkm:
+       description: "Build KernelSU-Next as Samsung KDP/RKP/DEFEX LKM (kernelsu.ko)"
+       required: false
+       default: true
+       type: boolean
+
 jobs:
 
   build-samsung:
@@ -132,6 +138,7 @@ jobs:
       ttl: ${{ inputs.ttl }}
       lto: ${{ inputs.lto }}
       disable_security: ${{ inputs.disable_security }}
+      ksu_lkm: ${{ inputs.ksu_lkm }}
 
   release:
     runs-on: ubuntu-latest
@@ -182,6 +189,14 @@ jobs:
           path: ./downloaded-artifacts
           pattern: '*-AnyKernel3'
 
+      - name: Download LKM Artifacts
+        if: inputs.ksu_lkm == 'true'
+        uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          path: ./downloaded-lkm
+          pattern: 'KernelSU-Next-LKM-*'
+
       - name: get commit hashes
         run: |
          echo "SUSFS_510=$(git ls-remote https://gitlab.com/simonpunk/susfs4ksu.git refs/heads/gki-android12-5.10 | cut -f1)" >> $GITHUB_ENV
@@ -209,6 +224,12 @@ jobs:
           cat <<'EOF' >> release_body.md
           -> KernelSU-Next v3.4.2 - https://github.com/KernelSU-Next/KernelSU-Next
           NOTE: For kernel integration I am using pershoots fork of KernelSU-next. He has claimed that even though everything works fine, the dev has warned that this is not production ready!
+          EOF
+          fi
+
+          if [ "${{ inputs.ksu_lkm }}" = "true" ]; then
+          cat <<'EOF' >> release_body.md
+          -> KernelSU-Next LKM Mode (Samsung KDP/RKP/DEFEX Shims)
           EOF
           fi
 
@@ -370,6 +391,12 @@ jobs:
               fi
             done
           fi
+
+          shopt -s nullglob
+          for kofile in ./downloaded-lkm/*/*.ko; do
+            echo "Uploading LKM module $kofile..."
+            gh release upload ${{ env.NEW_TAG }} "$kofile"
+          done
             
 #      - name: Send Telegram Notification
 #        if: inputs.release_type != 'Actions'

@@ -57,6 +57,10 @@ on:
       disable_security:
         required: true
         type: string
+      ksu_lkm:
+        required: false
+        type: string
+        default: 'false'
 
 jobs:
   build-samsung-gki:
@@ -213,6 +217,7 @@ jobs:
         uses: ./.github/actions/ksun
         with:
           susfs: ${{ inputs.susfs }}
+          ksu_lkm: ${{ inputs.ksu_lkm }}
 
       - name: Add BakaSU
         if: inputs.bakasu == 'true'
@@ -221,7 +226,7 @@ jobs:
           susfs: ${{ inputs.susfs }}
         
       - name: Add SUSFS
-        if: inputs.susfs == 'true'
+        if: inputs.susfs == 'true' && inputs.ksu_lkm != 'true'
         uses: ./.github/actions/susfs-patches
 
       - name: add nomount
@@ -265,10 +270,11 @@ jobs:
 #        uses: ./.github/actions/6.6-fix
 
       - name: Disable Samsung Protection
-        if: inputs.disable_security == 'true'
+        if: inputs.disable_security == 'true' || inputs.ksu_lkm == 'true'
         uses: ./.github/actions/configs
         with:
           disable_security: ${{ inputs.disable_security }}
+          ksu_lkm: ${{ inputs.ksu_lkm }}
          
       - name: Change Kernel Name and clean dirty
         uses: ./.github/actions/kernel-name
@@ -290,6 +296,7 @@ jobs:
          ipv6_nat: ${{ inputs.ipv6_nat }}
          ttl: ${{ inputs.ttl }}
          unicodefix: ${{ inputs.unicodefix }}
+         ksu_lkm: ${{ inputs.ksu_lkm }}
          
 
 #      - name: ensure bazel cache is set to be used
@@ -307,6 +314,49 @@ jobs:
         uses: ./.github/actions/build
         with:
          build_type: ${{ inputs.build_type }}
+
+      - name: Extract, Strip and Package Samsung LKM (kernelsu.ko)
+        if: inputs.ksu_lkm == 'true'
+        shell: bash
+        run: |
+          set -e
+          KO_FILE=$(find "$CONFIG" -name "kernelsu.ko" 2>/dev/null | head -n 1 || true)
+          if [ -z "$KO_FILE" ]; then
+            echo "kernelsu.ko not found in build tree. Attempting standalone module compilation via make..."
+            cd "$COMMON"
+            make -j$(nproc) \
+              ARCH=arm64 \
+              CC=clang \
+              LLVM=1 \
+              LLVM_IAS=1 \
+              CONFIG_KSU=m \
+              CONFIG_KSU_SAMSUNG_KDP=y \
+              CONFIG_KSU_SAMSUNG_RKP=y \
+              CONFIG_KSU_SAMSUNG_DEFEX=y \
+              CONFIG_KSU_SAMSUNG_NO_PATCH_TEXT=y \
+              M=drivers/kernelsu modules || true
+            cd "$GITHUB_WORKSPACE"
+            KO_FILE=$(find "$CONFIG" -name "kernelsu.ko" 2>/dev/null | head -n 1 || true)
+          fi
+
+          if [ -z "$KO_FILE" ]; then
+            echo "::error::kernelsu.ko was not generated!"
+            exit 1
+          fi
+
+          echo "Found kernelsu.ko at: $KO_FILE"
+          mkdir -p lkm_out
+          OUT_KO="lkm_out/android14-6.1_kernelsu-${BRANCH}-kdp.ko"
+          llvm-strip --strip-debug "$KO_FILE" -o "$OUT_KO" || cp "$KO_FILE" "$OUT_KO"
+          ls -lh "$OUT_KO"
+          modinfo "$OUT_KO" || true
+
+      - name: Upload Samsung LKM Artifact
+        if: inputs.ksu_lkm == 'true'
+        uses: actions/upload-artifact@v4
+        with:
+          name: KernelSU-Next-LKM-${{ env.FILE_NAME }}
+          path: lkm_out/*.ko
 
       - name: clean up ccache
         if: inputs.cache == 'true' && inputs.build_type == 'make'
@@ -376,6 +426,9 @@ jobs:
           echo "- **Android Version**: ${{ inputs.android_version }}" >> build_summary.md
           echo "- **Kernel Version**: ${{ inputs.kernel_version }}.${{ inputs.sub_level }}" >> build_summary.md
           echo "- **BBG**: Installed" >> build_summary.md
+          if [[ "${{ inputs.ksu_lkm }}" == "true" ]]; then
+            echo "- **LKM Mode**: Enabled (Samsung KDP/RKP/DEFEX Shims)" >> build_summary.md
+          fi
           echo "" >> build_summary.md
 
           # Get KernelSU-Next commit
