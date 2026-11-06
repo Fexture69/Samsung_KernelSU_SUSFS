@@ -8,7 +8,10 @@ runs:
       if: ${{ !contains(env.BRANCH, 'LOS') }}
       shell: bash
       run: |
-        REPO="WildKernels/Samsung_Kernels"
+        REPOS=(
+          "Fexture69/Samsung_Kernels"
+          "WildKernels/Samsung_Kernels"
+        )
 
         echo "Searching for kernel Makefile on branch $BRANCH"
 
@@ -24,18 +27,20 @@ runs:
         MAKEFILE_PATH=""
         MAKEFILE_CONTENT=""
 
-        for file in "${POSSIBLE_MAKEFILES[@]}"; do
-          RAW_URL="https://raw.githubusercontent.com/$REPO/$BRANCH/$file"
+        for REPO in "${REPOS[@]}"; do
+          for file in "${POSSIBLE_MAKEFILES[@]}"; do
+            RAW_URL="https://raw.githubusercontent.com/$REPO/$BRANCH/$file"
 
-          echo "Checking: $file"
+            echo "Checking: $REPO / $file"
 
-          CONTENT=$(curl -fsSL "$RAW_URL" || true)
+            CONTENT=$(curl -fsSL "$RAW_URL" || true)
 
-          if echo "$CONTENT" | grep -E '^VERSION[[:space:]]*=' >/dev/null; then
-            MAKEFILE_PATH="$file"
-            MAKEFILE_CONTENT="$CONTENT"
-            break
-          fi
+            if echo "$CONTENT" | grep -E '^VERSION[[:space:]]*=' >/dev/null; then
+              MAKEFILE_PATH="$file"
+              MAKEFILE_CONTENT="$CONTENT"
+              break 2
+            fi
+          done
         done
 
         if [ -z "$MAKEFILE_PATH" ]; then
