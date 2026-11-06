@@ -114,7 +114,7 @@ on:
       ksu_lkm:
        description: "Build KernelSU-Next as Samsung KDP/RKP/DEFEX LKM (kernelsu.ko)"
        required: false
-       default: true
+       default: false
        type: boolean
 
 jobs:
