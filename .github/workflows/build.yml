@@ -212,6 +212,13 @@ jobs:
             rm "$file"
           done
 
+      - name: Fix script and tool permissions
+        run: |
+          chmod -R +x "$COMMON/scripts" 2>/dev/null || true
+          chmod -R +x "$CONFIG/tools" 2>/dev/null || true
+          chmod -R +x "$CONFIG/build" 2>/dev/null || true
+          find "$CONFIG" -maxdepth 3 -name "*.sh" -exec chmod +x {} + 2>/dev/null || true
+
       - name: Add KernelSU-Next
         if: inputs.ksun == 'true'
         uses: ./.github/actions/ksun
