@@ -9,7 +9,7 @@ runs:
     run: |
      cd "$COMMON"
      patch -p1 < "$KERNEL_PATCHES/common/bbrv3/0001-net-tcp-backport-BBRv3-to-$ANDROID_VER-$KERNEL_VER.patch"
-     
+
   - name: add bbr configs to defconfig
     shell: bash
     run: |
@@ -18,10 +18,17 @@ runs:
      "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_NET_SCH_CAKE
      "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_NET_SCH_PIE
      "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_NET_SCH_FQ_PIE
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_NET_SCH_DEFAULT
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_DEFAULT_FQ
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --disable CONFIG_DEFAULT_PFIFO_FAST
      "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_TCP_CONG_ADVANCED
      "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_TCP_CONG_BBR
      "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_TCP_CONG_BBR3
      "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_TCP_CONG_CUBIC
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_TCP_CONG_WESTWOOD
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_TCP_CONG_HTCP
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_TCP_CONG_VENO
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_TCP_CONG_CDG
      "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --disable CONFIG_TCP_CONG_BIC
-     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --disable CONFIG_TCP_CONG_WESTWOOD
-     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --disable CONFIG_TCP_CONG_HTCP
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --enable CONFIG_DEFAULT_BBR3
+     "$COMMON/scripts/config" --file "$GKI_DEFCONFIG" --disable CONFIG_DEFAULT_CUBIC
