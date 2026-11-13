@@ -1,0 +1,142 @@
+name: 'Prepare Boot Image'
+description: 'Build boot.img and Odin-flashable boot.tar from kernel image'
+
+runs:
+  using: composite
+  steps:
+    - name: Build Boot Images and Packages
+      shell: bash
+      run: |
+        set -e
+        echo "=========================================="
+        echo "Starting Boot Image Generation"
+        echo "=========================================="
+
+        BOOT_DIR="$GITHUB_WORKSPACE/boot-artifacts"
+        PACKAGE_DIR="$GITHUB_WORKSPACE/kernel-package"
+        mkdir -p "$BOOT_DIR"
+        mkdir -p "$PACKAGE_DIR"
+
+        # Install lz4 if missing
+        if ! command -v lz4 >/dev/null 2>&1; then
+          sudo apt-get update -qq && sudo apt-get install -y lz4 || true
+        fi
+
+        # 1. Download mkbootimg and avbtool if not already present
+        if [ ! -d "$GITHUB_WORKSPACE/tools-mkbootimg" ]; then
+          git clone --depth 1 https://android.googlesource.com/platform/system/tools/mkbootimg "$GITHUB_WORKSPACE/tools-mkbootimg"
+        fi
+        if [ ! -d "$GITHUB_WORKSPACE/tools-avb" ]; then
+          git clone --depth 1 https://android.googlesource.com/platform/external/avb "$GITHUB_WORKSPACE/tools-avb"
+        fi
+
+        MKBOOTIMG="$GITHUB_WORKSPACE/tools-mkbootimg/mkbootimg.py"
+        AVBTOOL="$GITHUB_WORKSPACE/tools-avb/avbtool.py"
+        AVB_KEY="$GITHUB_WORKSPACE/tools-avb/test/data/testkey_rsa2048.pem"
+
+        if [ -n "${BOOT_SIGN_KEY:-}" ]; then
+          echo "$BOOT_SIGN_KEY" > "$GITHUB_WORKSPACE/custom_boot_sign_key.pem"
+          AVB_KEY="$GITHUB_WORKSPACE/custom_boot_sign_key.pem"
+        elif [ ! -f "$AVB_KEY" ]; then
+          openssl genpkey -algorithm RSA -pkeyopt rsa_keygen_bits:2048 -out "$GITHUB_WORKSPACE/generated_testkey.pem"
+          AVB_KEY="$GITHUB_WORKSPACE/generated_testkey.pem"
+        fi
+
+        # 2. Locate built kernel binary
+        KERNEL_BIN=""
+        if [ -f "$ANYKERNEL3/Image" ]; then
+          KERNEL_BIN="$ANYKERNEL3/Image"
+        elif [ -f "$ANYKERNEL3/Image.gz" ]; then
+          KERNEL_BIN="$ANYKERNEL3/Image.gz"
+        elif [ -n "${KERNEL_IMAGE:-}" ] && [ -f "$CONFIG/$KERNEL_IMAGE" ]; then
+          KERNEL_BIN="$CONFIG/$KERNEL_IMAGE"
+        else
+          # Fallback search
+          KERNEL_BIN=$(find "$CONFIG" -type f \( -name "Image" -o -name "Image.gz" \) ! -path "*/.git/*" 2>/dev/null | head -n 1)
+        fi
+
+        if [ -z "$KERNEL_BIN" ] || [ ! -f "$KERNEL_BIN" ]; then
+          echo "::error::Kernel image file not found for boot.img creation!"
+          exit 1
+        fi
+        echo "Found kernel binary at: $KERNEL_BIN"
+
+        # Copy kernel image to workspace for summary check
+        if [[ "$KERNEL_BIN" == *".gz" ]]; then
+          cp "$KERNEL_BIN" "$GITHUB_WORKSPACE/${FILE_NAME}-Image.gz"
+        else
+          cp "$KERNEL_BIN" "$GITHUB_WORKSPACE/${FILE_NAME}-Image"
+        fi
+
+        # 3. Handle Android 12 GKI ramdisk if necessary
+        EXTRA_ARGS=()
+        if [ "${ANDROID_VER:-}" = "android12" ] || [ "${KERNEL_VER:-}" = "5.10" ]; then
+          echo "Android 12 GKI detected, checking for certified boot ramdisk..."
+          mkdir -p "$GITHUB_WORKSPACE/a12_ramdisk"
+          cd "$GITHUB_WORKSPACE/a12_ramdisk"
+          GKI_URL="https://dl.google.com/android/gki/gki-certified-boot-android12-5.10-2023-01_r1.zip"
+          if curl -fsSL -o gki-kernel.zip "$GKI_URL"; then
+            unzip -q gki-kernel.zip || true
+            A12_BOOT=$(ls -1 boot-*.img 2>/dev/null | head -n 1 || true)
+            if [ -n "$A12_BOOT" ]; then
+              python3 "$GITHUB_WORKSPACE/tools-mkbootimg/unpack_bootimg.py" --boot_img="$A12_BOOT" --out="unpacked" || true
+              if [ -f "unpacked/ramdisk" ]; then
+                EXTRA_ARGS+=(--ramdisk "unpacked/ramdisk" --os_version 12.0.0 --os_patch_level "2023-01")
+              fi
+            fi
+          fi
+          cd "$GITHUB_WORKSPACE"
+        fi
+
+        # 4. Generate boot.img (Header v4, standard 64MB partition size for GKI)
+        echo "Running mkbootimg..."
+        python3 "$MKBOOTIMG" \
+          --header_version 4 \
+          --kernel "$KERNEL_BIN" \
+          "${EXTRA_ARGS[@]}" \
+          --output "$BOOT_DIR/boot.img"
+
+        echo "Signing boot.img with avbtool..."
+        python3 "$AVBTOOL" add_hash_footer \
+          --partition_name boot \
+          --partition_size $((64 * 1024 * 1024)) \
+          --image "$BOOT_DIR/boot.img" \
+          --algorithm SHA256_RSA2048 \
+          --key "$AVB_KEY"
+
+        # 5. Create Samsung Odin-flashable boot.tar and compressed variants
+        cd "$BOOT_DIR"
+        tar -cf "boot.tar" boot.img
+        cp "boot.img" "${FILE_NAME}-boot.img"
+        cp "boot.tar" "${FILE_NAME}-boot.tar"
+
+        # Also copy to workspace root so existing build_summary.md check finds it
+        cp "boot.img" "$GITHUB_WORKSPACE/${FILE_NAME}-boot.img"
+        cp "boot.tar" "$GITHUB_WORKSPACE/${FILE_NAME}-boot.tar"
+
+        if command -v lz4 >/dev/null 2>&1; then
+          lz4 -B6 --content-size -f boot.img boot.img.lz4
+          cp boot.img.lz4 "${FILE_NAME}-boot.img.lz4"
+          cp boot.img.lz4 "$GITHUB_WORKSPACE/${FILE_NAME}-boot.img.lz4"
+        fi
+        cd "$GITHUB_WORKSPACE"
+
+        # 6. Create AnyKernel3 flashable zip file
+        echo "Creating AnyKernel3 zip..."
+        cd "$ANYKERNEL3"
+        zip -r -9 "$GITHUB_WORKSPACE/${FILE_NAME}-AnyKernel3.zip" ./*
+        cd "$GITHUB_WORKSPACE"
+
+        # 7. Prepare combined package directory (contains both AK3 zip and boot.img/boot.tar)
+        cp "$GITHUB_WORKSPACE/${FILE_NAME}-AnyKernel3.zip" "$PACKAGE_DIR/"
+        cp "$BOOT_DIR/boot.img" "$PACKAGE_DIR/${FILE_NAME}-boot.img"
+        cp "$BOOT_DIR/boot.tar" "$PACKAGE_DIR/${FILE_NAME}-boot.tar"
+        if [ -f "$BOOT_DIR/boot.img.lz4" ]; then
+          cp "$BOOT_DIR/boot.img.lz4" "$PACKAGE_DIR/${FILE_NAME}-boot.img.lz4"
+        fi
+
+        echo "=========================================="
+        echo "Boot Image and Package Preparation Completed Successfully!"
+        ls -lh "$BOOT_DIR"
+        ls -lh "$PACKAGE_DIR"
+        echo "=========================================="

@@ -380,6 +380,9 @@ jobs:
       - name: Prepare AnyKernel3
         uses: ./.github/actions/ak3zip-prep
 
+      - name: Prepare Boot Image
+        uses: ./.github/actions/bootimg-prep
+
       - name: Upload AnyKernel3 Artifacts
         id: upload_ak3
         uses: actions/upload-artifact@v6
@@ -387,6 +390,24 @@ jobs:
           name: ${{ env.FILE_NAME }}-AnyKernel3
           path: |
             ./AnyKernel3/**
+          compression-level: 9
+
+      - name: Upload Boot Image Artifacts
+        id: upload_boot
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ env.FILE_NAME }}-Boot
+          path: |
+            boot-artifacts/*
+          compression-level: 9
+
+      - name: Upload Kernel Package (AK3 Zip + Boot Image)
+        id: upload_package
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ env.FILE_NAME }}-Package
+          path: |
+            kernel-package/*
           compression-level: 9
       
       - name: Scan and collect patch rejects
@@ -430,8 +451,8 @@ jobs:
           
           # Add build info
           echo "## Build Information" >> build_summary.md
-          echo "- **Android Version**: ${{ inputs.android_version }}" >> build_summary.md
-          echo "- **Kernel Version**: ${{ inputs.kernel_version }}.${{ inputs.sub_level }}" >> build_summary.md
+          echo "- **Android Version**: ${ANDROID_VER:-unknown}" >> build_summary.md
+          echo "- **Kernel Version**: ${KERNEL_VER:-unknown}" >> build_summary.md
           echo "- **BBG**: Installed" >> build_summary.md
           if [[ "${{ inputs.ksu_lkm }}" == "true" ]]; then
             echo "- **LKM Mode**: Enabled (Samsung KDP/RKP/DEFEX Shims)" >> build_summary.md
@@ -476,16 +497,25 @@ jobs:
           echo "## Build Artifacts" >> build_summary.md
 
           # Verify AnyKernel3 contents - check if kernel Image was actually copied (indicates successful build)
-          if [ -d "AnyKernel3" ] && [ -f "AnyKernel3/Image" ]; then
+          if [ -d "AnyKernel3" ] && ([ -f "AnyKernel3/Image" ] || [ -f "AnyKernel3/Image.gz" ]); then
             AK3_STATUS="✅"
           else
             AK3_STATUS="❌"
           fi
           echo "- **AnyKernel3**: $AK3_STATUS ${{ env.FILE_NAME }}-AnyKernel3" >> build_summary.md
 
+          # Verify Boot Image
+          if [ -f "boot-artifacts/boot.img" ]; then
+            BOOT_STATUS="✅"
+          else
+            BOOT_STATUS="❌"
+          fi
+          echo "- **Boot Image & Odin Tar**: $BOOT_STATUS ${{ env.FILE_NAME }}-Boot" >> build_summary.md
+          echo "- **Combined Package**: $BOOT_STATUS ${{ env.FILE_NAME }}-Package" >> build_summary.md
+
           echo "### Misc (uploaded files)" >> build_summary.md
           FILES_PRESENT=0
-          for f in "${{ env.FILE_NAME }}-Image" "${{ env.FILE_NAME }}-Image.gz" "${{ env.FILE_NAME }}-Image.lz4" "${{ env.FILE_NAME }}-boot.img" "${{ env.FILE_NAME }}-boot-gz.img" "${{ env.FILE_NAME }}-boot-lz4.img"; do
+          for f in "${{ env.FILE_NAME }}-Image" "${{ env.FILE_NAME }}-Image.gz" "${{ env.FILE_NAME }}-Image.lz4" "${{ env.FILE_NAME }}-boot.img" "${{ env.FILE_NAME }}-boot.tar" "${{ env.FILE_NAME }}-boot-gz.img" "${{ env.FILE_NAME }}-boot-lz4.img"; do
             if [ -f "$f" ]; then FILES_PRESENT=$((FILES_PRESENT+1)); fi
           done
           if [ "$FILES_PRESENT" -gt 0 ]; then
@@ -496,7 +526,7 @@ jobs:
           echo "- **Set**: $MISC_STATUS ${{ env.FILE_NAME }}-Misc" >> build_summary.md
           if [ "$MISC_STATUS" = "✅" ]; then
             echo "  Included:" >> build_summary.md
-            for f in "${{ env.FILE_NAME }}-Image" "${{ env.FILE_NAME }}-Image.gz" "${{ env.FILE_NAME }}-Image.lz4" "${{ env.FILE_NAME }}-boot.img" "${{ env.FILE_NAME }}-boot-gz.img" "${{ env.FILE_NAME }}-boot-lz4.img"; do
+            for f in "${{ env.FILE_NAME }}-Image" "${{ env.FILE_NAME }}-Image.gz" "${{ env.FILE_NAME }}-Image.lz4" "${{ env.FILE_NAME }}-boot.img" "${{ env.FILE_NAME }}-boot.tar" "${{ env.FILE_NAME }}-boot-gz.img" "${{ env.FILE_NAME }}-boot-lz4.img"; do
               if [ -f "$f" ]; then
                 echo "  - $f" >> build_summary.md
               fi

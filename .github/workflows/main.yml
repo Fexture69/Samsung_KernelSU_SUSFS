@@ -189,6 +189,13 @@ jobs:
           path: ./downloaded-artifacts
           pattern: '*-AnyKernel3'
 
+      - name: Download Boot Artifacts
+        uses: actions/download-artifact@v8
+        continue-on-error: true
+        with:
+          path: ./downloaded-boot
+          pattern: '*-Boot'
+
       - name: Download LKM Artifacts
         if: inputs.ksu_lkm == 'true'
         uses: actions/download-artifact@v8
@@ -336,7 +343,7 @@ jobs:
           
           EOF
           fi
-          if ${{ inputs.susfs }} == 'true' ]]; then
+          if [[ "${{ inputs.susfs }}" == 'true' ]]; then
           cat <<'EOF' >> release_body.md
           SUSFS: 
           android12-5.10: ${{ env.SUSFS_510 }}
@@ -347,14 +354,14 @@ jobs:
           EOF
           fi
           
-          if ${{ inputs.bbg }} == 'true' ]]; then
+          if [[ "${{ inputs.bbg }}" == 'true' ]]; then
           cat <<'EOF' >> release_body.md
           BBG: ${{ env.BBG_HASH }}
           
           EOF
           fi
           
-          if ${{ inputs.nomount }} == 'true' ]]; then
+          if [[ "${{ inputs.nomount }}" == 'true' ]]; then
           cat <<'EOF' >> release_body.md
           NoMount: ${{ env.NM_HASH }}
           
@@ -391,6 +398,14 @@ jobs:
               fi
             done
           fi
+
+          shopt -s nullglob
+          for bootfile in ./downloaded-boot/*/*; do
+            if [ -f "$bootfile" ]; then
+              echo "Uploading Boot asset $bootfile..."
+              gh release upload ${{ env.NEW_TAG }} "$bootfile"
+            fi
+          done
 
           shopt -s nullglob
           for kofile in ./downloaded-lkm/*/*.ko; do
